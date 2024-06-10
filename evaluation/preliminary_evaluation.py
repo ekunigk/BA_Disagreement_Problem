@@ -21,14 +21,15 @@ def euclidean(ex_1, ex_2):
 def fa_pairwise(explanations, k):
     fa_matrix = np.zeros((len(explanations), len(explanations)))
     for i in range(len(explanations)):
-        for j in range(i, len(explanations)):
+        for j in range(i+1, len(explanations)):
             fa_matrix[i, j] = feature_agreement(explanations[i], explanations[j], k)
             fa_matrix[j, i] = fa_matrix[i, j]
+        fa_matrix[i, i] = 1
     return fa_matrix
     
 
-def fa_average_pairwise(explanation_set, feature_amount, n, k):
-    explanation_keys = list(explanation_set.keys())[1:6]
+def fa_average_pairwise(explanation_set, keys, feature_amount, n, k):
+    explanation_keys = keys
     size = len(explanation_set[explanation_keys[0]])
     
     fa_matrix = np.zeros((len(explanation_keys), len(explanation_keys)))
@@ -42,4 +43,4 @@ def fa_average_pairwise(explanation_set, feature_amount, n, k):
         fa_matrix = fa_matrix + fa_pairwise(explanation_fa, k)
     fa_matrix = fa_matrix / n 
 
-    return fa_matrix
+    return fa_matrix 

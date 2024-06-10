@@ -69,7 +69,7 @@ def get_pairwise_explanations(data_collector, explanation_set, model_number=1):
         method1 = method_list[0]
         for j in range(len(method_list)-1):
             method2 = method_list[j+1]
-            dataset = data_collector.collect_regression_data(explanation_set, keys, method1, method2, model_number)
+            dataset = data_collector.collect_regression_data(explanation_set, method1, method2, model_number)
             pairs[f'{method1}_{method2}'] = dataset
         method_list.pop(0)
 
