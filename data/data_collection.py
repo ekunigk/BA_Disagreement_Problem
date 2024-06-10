@@ -69,12 +69,15 @@ class DataCollector():
     
 
     def collect_regression_data(self, explanation_set, method1='ig', method2='ks', model_number=1):
-        if model_number == 1:
-            keys = list(explanation_set.keys())[1:6]
-        elif model_number == 2:
-            keys = list(explanation_set.keys())[7:12]
-        elif model_number == 3:
-            keys = list(explanation_set.keys())[13:18]
+
+        keys = self.get_keys(explanation_set, model_number)
+
+        # if model_number == 1:
+        #     keys = list(explanation_set.keys())[1:6]
+        # elif model_number == 2:
+        #     keys = list(explanation_set.keys())[7:12]
+        # elif model_number == 3:
+        #     keys = list(explanation_set.keys())[13:18]
 
         method_keys = []
         for i in range(2):
@@ -99,5 +102,16 @@ class DataCollector():
         dataset = dataset[1:]
 
         return dataset
+    
+
+    def get_keys(self, explanation_set, model_number=1):
+        if model_number == 1:
+            keys = list(explanation_set.keys())[1:6]
+        elif model_number == 2:
+            keys = list(explanation_set.keys())[7:12]
+        elif model_number == 3:
+            keys = list(explanation_set.keys())[13:18]
+        
+        return keys
 
     
