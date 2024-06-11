@@ -6,7 +6,7 @@ from data.evaluation_prep import collect_regression_data, prepare_umap_data
 
 from evaluation.preliminary_evaluation import fa_average_pairwise
 from evaluation.structural_regression import pairwise_kfold
-from evaluation.umap import visualize_umap
+from evaluation.umap import visualize_umap, project_umap
 
 from visualization.preliminary_fig import visualize_fa
 from visualization.regression_fig import visualize_scores
@@ -21,7 +21,8 @@ def analyze_explanations(explanation_set, model_number, feature_amount, n_fa, k_
     visualize_fa(fa_matrix)
 
     umap_data = prepare_umap_data(explanations, keys)
-    visualize_umap(umap_data)
+    embedding = project_umap(umap_data)
+    visualize_umap(umap_data, embedding)
 
     scores = pairwise_kfold(data_collector, explanations, model_number)
     visualize_scores(scores)
