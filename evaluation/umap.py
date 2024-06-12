@@ -4,11 +4,11 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import umap
 
-def project_umap(dataset, scale=False):
+def project_umap(dataset, n_neighbors=15, min_dist=0.1, scale=False):
     feature_set = dataset[:, :-1]
     if scale:
         feature_set = StandardScaler().fit_transform(feature_set)
-    reducer = umap.UMAP()
+    reducer = umap.UMAP(n_neighbors=n_neighbors, min_dist=min_dist)
     embedding = reducer.fit_transform(feature_set)
     return embedding
 
@@ -34,7 +34,7 @@ def visualize_umap2(dataset, embedding, scale=False):
     sca = sns.scatterplot(
         x=embedding[:, 0],
         y=embedding[:, 1],
-        hue=dataset[:, -1].numpy().astype(int),
+        hue=label,
         palette='deep'
     )
     sca.legend(loc='upper right', labels=['ig', 'ks', 'li', 'sg', 'vg'])
