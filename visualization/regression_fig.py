@@ -16,9 +16,24 @@ def visualize_scores_all(scores_all):
     plt.show()
 
 
-def visualize_attempt(scores_all):
-    a = sns.scatterplot(x=list(scores_all[0].keys()), y=list(scores_all[0].values()))
-    b = sns.scatterplot(x=list(scores_all[1].keys()), y=list(scores_all[1].values()))
-    c = sns.scatterplot(x=list(scores_all[2].keys()), y=list(scores_all[2].values()))
-    plt.plot(a, b, c)
+def visualize_attempt(scores_all, legend_names=('one', 'two', 'three')):
+
+    color_list = ['blue', 'purple', 'red', 'orange', 'yellow']
+    name_list = ['one', 'two', 'three', 'four', 'five']
+
+    for i in range(len(scores_all)):
+        name_list[i] = plt.scatter(x=list(scores_all[i].keys()), y=list(scores_all[i].values()), color=color_list[i])
+
+    name_list = tuple(name_list[0:len(scores_all)])
+
+    plt.legend(name_list, 
+               legend_names,
+               loc='upper right',
+               fontsize='8')
+    
+    plt.title('Logistic Regression Accuracy')
+    plt.xlabel('Method Pairs')
+    plt.ylabel('Accuracy')
+
+    # plt.plot(a, b, c)
     plt.show()

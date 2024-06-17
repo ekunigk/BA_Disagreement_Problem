@@ -20,11 +20,11 @@ def split_regression_data(two_explanation_set, test_size=0.2):
     return X_train, X_test, y_train, y_test
 
 
-def test_on_kfold(model, two_explanation_set, k=10):
+def test_on_kfold(model, two_explanation_set, k=10, random_state=44):
     X = two_explanation_set[:, :-1]
     y = two_explanation_set[:, -1]
 
-    kf = KFold(n_splits=k, shuffle=True, random_state=44)
+    kf = KFold(n_splits=k, shuffle=True, random_state=random_state)
     kf.get_n_splits(X)
 
     scores = []
@@ -77,7 +77,7 @@ def get_pairwise_explanations(data_collector, explanation_set, model_number=1):
     return pairs 
 
 
-def pairwise_kfold(data_collector, explanation_set, model_number=1, k=10):
+def pairwise_kfold(data_collector, explanation_set, model_number=1, k=10, random_state=44):
     pairs = get_pairwise_explanations(data_collector, explanation_set, model_number)
     model = LogisticRegression(random_state=10, max_iter=100)
     scores = {}
@@ -85,30 +85,30 @@ def pairwise_kfold(data_collector, explanation_set, model_number=1, k=10):
     for pair in pairs:
         # print(pair)
         two_explanation_set = pairs[pair]
-        score = test_on_kfold(model, two_explanation_set, k)
+        score = test_on_kfold(model, two_explanation_set, k, random_state=random_state)
         scores[pair] = score
 
     return scores
 
 
-def multiple_pairwise_kfold(data_collector, explanation_set, model_number=1, k=10, n=3):
-    compared_scores = np.array([])
+def multiple_pairwise_kfold(data_collector, explanation_set, model_number=1, k=10, n=3, random_state=[44, 45, 46]):
+    # compared_scores = np.array([])
 
-    for i in range(n):
-        scores = pairwise_kfold(data_collector, explanation_set, model_number, k)
-        for score in scores.values():
-            compared_scores = np.append(compared_scores, score)
-    
-    compared_scores = compared_scores.reshape(n, -1)
-
-    df = pd.DataFrame(compared_scores, columns=list(scores.keys()))
-
-    # compared_scores = {}
     # for i in range(n):
     #     scores = pairwise_kfold(data_collector, explanation_set, model_number, k)
-    #     compared_scores[i] = scores
+    #     for score in scores.values():
+    #         compared_scores = np.append(compared_scores, score)
+    
+    # compared_scores = compared_scores.reshape(n, -1)
 
-    return df
+    # df = pd.DataFrame(compared_scores, columns=list(scores.keys()))
+
+    compared_scores = {}
+    for i in range(n):
+        scores = pairwise_kfold(data_collector, explanation_set, model_number, k, random_state=random_state[i])
+        compared_scores[i] = scores
+
+    return compared_scores
 
 
 
