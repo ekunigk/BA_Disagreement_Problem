@@ -5,6 +5,9 @@ def visualize_scores(scores):
     method_list = list(scores.keys())
     score_list = list(scores.values())
     sns.scatterplot(x=method_list, y=score_list)
+    plt.title('Logistic Regression Accuracy')
+    plt.xlabel('Method Pairs')
+    plt.ylabel('Accuracy')
     plt.show()
 
 

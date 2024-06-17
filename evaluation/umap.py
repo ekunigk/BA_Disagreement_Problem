@@ -62,4 +62,5 @@ def visualize_umap(dataset, embedding):
                ncol=1,
                fontsize=8)
     
+    plt.title('UMAP projection of the dataset')    
     plt.show()
