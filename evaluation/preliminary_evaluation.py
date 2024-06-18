@@ -28,9 +28,11 @@ def fa_pairwise(explanations, k):
     return fa_matrix
     
 
-def fa_average_pairwise(explanation_set, keys, feature_amount, n, k):
+def fa_average_pairwise(explanation_set, keys, n, k):
     explanation_keys = keys
     size = len(explanation_set[explanation_keys[0]])
+
+    feature_amount = len(explanation_set[explanation_keys[0]][0])
     
     fa_matrix = np.zeros((len(explanation_keys), len(explanation_keys)))
 
@@ -44,3 +46,23 @@ def fa_average_pairwise(explanation_set, keys, feature_amount, n, k):
     fa_matrix = fa_matrix / n 
 
     return fa_matrix 
+
+
+def fa_difference(explanation_set, keys, n, start=0, stop=4, steps=1, random_comparison=False):
+    fa_diff = np.ones((1, 10))
+    k_list = []
+    for k in range(start, stop, steps):
+        k_list.append(k)
+        fa_matrix = fa_average_pairwise(explanation_set, keys, n, k)
+        fa_diff = np.vstack((fa_diff, [fa_matrix[[0, 0, 0, 0, 1, 1, 1, 2, 2, 3], [1, 2, 3, 4, 2, 3, 4, 3, 4, 4]]]))
+
+    if random_comparison:
+        random_results = [1]
+        for i in k_list:
+            first_set = np.random.randint(0, len(explanation_set[keys[0]][0]), size=i)
+            second_set = np.random.randint(0, len(explanation_set[keys[0]][0]), size=i)
+            count = len(set(first_set).intersection(set(second_set)))
+            random_results = np.append(random_results, (count/i))
+        fa_diff = np.hstack((fa_diff, random_results.reshape(-1, 1)))
+
+    return fa_diff[1:], k_list

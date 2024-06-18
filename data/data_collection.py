@@ -113,5 +113,27 @@ class DataCollector():
             keys = list(explanation_set.keys())[13:18]
         
         return keys
+    
+
+    def collect_pgi(self, dataset_name, model_number=1):
+        if dataset_name not in ['breastw', 'btsc', 'spambase', 'spf']:
+            raise ValueError('Invalid dataset name')
+        
+        path = path = f'data/explanation_sets/{dataset_name}/explanations/'
+
+        files = [f for f in listdir(path) if isfile(join(path, f))]
+        pgi_data = {}
+
+        for file in files:
+            method = file[-6:-4]
+            if method == 'gi':
+                method = 'grdpgi'
+            with open(path + file, 'rb') as f:
+                data_temp = pickle.load(f)
+                pgi_data[file] = data_temp['pgile0.33']
+
+        return pgi_data
+
+        
 
     
