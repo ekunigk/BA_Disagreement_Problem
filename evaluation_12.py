@@ -3,6 +3,7 @@ import torch
 
 from data.data_collection import DataCollector
 from data.evaluation_prep import collect_regression_data, prepare_umap_data
+from data.preprocessing import mask_features, scale_data
 
 from evaluation.preliminary_evaluation import fa_average_pairwise
 from evaluation.structural_regression import pairwise_kfold
@@ -11,7 +12,7 @@ from evaluation.umap import visualize_umap, project_umap
 from visualization.preliminary_fig import visualize_fa
 from visualization.regression_fig import visualize_scores
 
-def analyze_explanations(explanation_set, model_number, n_fa, k_fa, n_neighbors=15, min_dist=0.1):
+def analyze_explanations(explanation_set, model_number, n_fa, k_fa, n_neighbors=15, min_dist=0.1, scale=False, masked=False, mask=0, k_mask=3):
 
     data_collector = DataCollector()
     explanations = data_collector.collect_data(explanation_set)
@@ -21,6 +22,13 @@ def analyze_explanations(explanation_set, model_number, n_fa, k_fa, n_neighbors=
     visualize_fa(fa_matrix)
 
     umap_data = prepare_umap_data(explanations, keys)
+
+    if scale:
+        umap_data = scale_data(umap_data, True)
+
+    if masked:
+        umap_data = mask_features(umap_data, mask, k_mask)
+
     embedding = project_umap(umap_data, n_neighbors=n_neighbors, min_dist=min_dist)
     visualize_umap(umap_data, embedding)
 

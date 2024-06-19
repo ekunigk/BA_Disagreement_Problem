@@ -1,4 +1,5 @@
 import torch 
+from sklearn.preprocessing import MaxAbsScaler
 
 def collect_regression_data(explanation_set, keys, method1='ig', method2='ks', model_number=1):
 
@@ -34,7 +35,7 @@ def collect_regression_data(explanation_set, keys, method1='ig', method2='ks', m
     return dataset
 
 
-def prepare_umap_data(explanation_set, keys, model_number=1):
+def prepare_umap_data(explanation_set, keys, scale=False):
     # if model_number == 1:
     #     keys = list(explanation_set.keys())[1:6]
     # elif model_number == 2:
@@ -42,10 +43,15 @@ def prepare_umap_data(explanation_set, keys, model_number=1):
     # elif model_number == 3:
     #     keys = list(explanation_set.keys())[13:18]
 
+    scaler = MaxAbsScaler()
+
     dataset = torch.ones((1, len(explanation_set[keys[0]][0])+1))
 
     for i in range(len(keys)):
         explanations = explanation_set[keys[i]]
+        if scale:
+            explanations_scaled = scaler.fit_transform(explanations.T).T
+            explanations = torch.Tensor(explanations_scaled)
         data = torch.hstack((explanations, torch.full((len(explanations), 1), i)))
         dataset = torch.vstack((dataset, data))
 

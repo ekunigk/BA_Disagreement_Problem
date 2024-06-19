@@ -45,7 +45,6 @@ def visualize_umap2(dataset, embedding, scale=False):
 def visualize_umap(dataset, embedding):
 
     length = int(len(embedding) / 5)
-    print(length)
 
     colors = ['blue', 'orange', 'green', 'red', 'purple']
 
