@@ -51,7 +51,7 @@ def test_on_kfold(model, two_explanation_set, k=10, random_state=44):
 
 
 def concatenate_data_explanation(data_collector, two_explanation_set, dataset_name):
-    X, y = data_collector.collect_original_dataset(dataset_name)
+    X, y = data_collector.collect_original_dataset()
 
     X_doubled = torch.cat((X, X))
     X_cat = torch.cat((two_explanation_set[:, :-1], X_doubled), 1)
@@ -60,16 +60,16 @@ def concatenate_data_explanation(data_collector, two_explanation_set, dataset_na
     return X_cat, y_cat
 
 
-def get_pairwise_explanations(data_collector, explanation_set, model_number=1):
+def get_pairwise_explanations2(data_collector, model_number=1):
     pairs = {}
     method_list = ['ig', 'ks', 'li', 'sg', 'vg']
-    keys = data_collector.get_keys(explanation_set, model_number)
+    keys = data_collector.get_keys(model_number)
 
     for i in range(4):
         method1 = method_list[0]
         for j in range(len(method_list)-1):
             method2 = method_list[j+1]
-            dataset = data_collector.collect_regression_data(explanation_set, method1, method2, model_number)
+            dataset = data_collector.collect_regression_data(method1, method2, model_number)
             pairs[f'{method1}_{method2}'] = dataset
         method_list.pop(0)
 
@@ -77,9 +77,55 @@ def get_pairwise_explanations(data_collector, explanation_set, model_number=1):
     return pairs 
 
 
-def pairwise_kfold(data_collector, explanation_set, model_number=1, k=10, random_state=44):
-    pairs = get_pairwise_explanations(data_collector, explanation_set, model_number)
+
+def get_pairwise_explanations(explanations_all):
+    pairs = {}
+    method_list = ['ig', 'ks', 'li', 'sg', 'vg']
+
+    print(explanations_all[0:10])
+
+    for i in range(4):
+        method1 = method_list[0]
+        for j in range(len(method_list)-1):
+            method2 = method_list[j+1]
+            dataset = separate_into_pairs(explanations_all, method1, method2)
+            pairs[f'{method1}_{method2}'] = dataset
+        method_list.pop(0)
+
+    return pairs
+
+
+def separate_into_pairs(explanations_all, method1, method2):
+
+    explanation_length = int(len(explanations_all)/5)
+
+    dataset = torch.ones((1, len(explanations_all[0])))
+
+    for i in range(2):
+        method = [method1, method2][i]
+
+        if method == 'ig':
+            dataset = torch.vstack((dataset, explanations_all[0:explanation_length]))
+        elif method == 'ks':
+            dataset = torch.vstack((dataset, explanations_all[explanation_length:explanation_length*2]))
+        elif method == 'li':
+            dataset = torch.vstack((dataset, explanations_all[explanation_length*2:explanation_length*3]))
+        elif method == 'sg':
+            dataset = torch.vstack((dataset, explanations_all[explanation_length*3:explanation_length*4]))
+        elif method == 'vg':
+            dataset = torch.vstack((dataset, explanations_all[explanation_length*4:explanation_length*5]))
+
+    dataset = dataset[1:]
+    return dataset 
+    
+
+
+def pairwise_kfold(explanations_all, k=10, random_state=44):
+    # pairs = get_pairwise_explanations(data_collector, model_number)
+    
     model = LogisticRegression(random_state=10, max_iter=100)
+    pairs = get_pairwise_explanations(explanations_all)
+
     scores = {}
 
     for pair in pairs:

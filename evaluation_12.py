@@ -1,7 +1,7 @@
 import numpy as np
 import torch 
 
-from data.data_collection import DataCollector
+from data.data_collector import DataCollector
 from data.evaluation_prep import collect_regression_data, prepare_umap_data
 from data.preprocessing import mask_features, scale_data
 
@@ -12,27 +12,47 @@ from evaluation.umap import visualize_umap, project_umap
 from visualization.preliminary_fig import visualize_fa
 from visualization.regression_fig import visualize_scores
 
-def analyze_explanations(explanation_set, model_number, n_fa, k_fa, n_neighbors=15, min_dist=0.1, scale=False, masked=False, mask=0, k_mask=3):
+def analyze_explanations(explanation_set, n_fa, k_fa, model_number=1, n_neighbors=15, min_dist=0.1, scaled=False, masked=False, k_mask=3, mask=0):
 
-    data_collector = DataCollector()
-    explanations = data_collector.collect_data(explanation_set)
-    keys = data_collector.get_keys(explanations, model_number)
+    data_collector = DataCollector(explanation_set)
+    keys = data_collector.get_keys(model_number)
 
-    fa_matrix = fa_average_pairwise(explanations, keys, n_fa, k_fa)
+    fa_matrix = fa_average_pairwise(data_collector, n_fa, k_fa, model_number)
     visualize_fa(fa_matrix)
 
-    umap_data = prepare_umap_data(explanations, keys)
+    # if masked and scaled:
+    #     data_collector.mask_features(mask, k_mask, scaled=True)
+    #     umap_data = data_collector.masked_explanations
+    # elif masked and not scaled:
+    #     data_collector.mask_features(mask, k_mask, scaled=False)
+    #     umap_data = data_collector.masked_explanations
+    # elif scaled and not masked:
+    #     umap_data = data_collector.scaled_explanations
+    # else:
+    #     umap_data = data_collector.explanations_all
 
-    if scale:
-        umap_data = scale_data(umap_data, True)
+    # embedding = project_umap(umap_data, n_neighbors=n_neighbors, min_dist=min_dist)
+    # visualize_umap(umap_data, embedding)
 
-    if masked:
-        umap_data = mask_features(umap_data, mask, k_mask)
+    if masked and scaled:
+        data_collector.mask_features(k_mask, mask, scaled=True)
+        umap_data = data_collector.masked_explanations
+        regression_data = data_collector.masked_explanations
+    elif masked and not scaled:
+        data_collector.mask_features(k_mask, mask, scaled=False)
+        umap_data = data_collector.masked_explanations
+        regression_data = data_collector.masked_explanations
+    elif scaled and not masked:
+        umap_data = data_collector.scaled_explanations
+        regression_data = data_collector.scaled_explanations
+    else:
+        umap_data = data_collector.explanations_all
+        regression_data = data_collector.explanations_all
 
     embedding = project_umap(umap_data, n_neighbors=n_neighbors, min_dist=min_dist)
     visualize_umap(umap_data, embedding)
 
-    scores = pairwise_kfold(data_collector, explanations, model_number)
+    scores = pairwise_kfold(regression_data)
     visualize_scores(scores)
 
 
