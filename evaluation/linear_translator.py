@@ -3,10 +3,6 @@ from sklearn.model_selection import train_test_split
 from sklearn.metrics import mean_squared_error
 
 
-def prepare_data(explanation_set):
-    return
-
-
 def translate(explanation1, explanation2, pred=False):
     model = LinearRegression()
     X_train, X_test, y_train, y_test = train_test_split(explanation1, explanation2, test_size=0.2, random_state=43)
@@ -21,7 +17,7 @@ def translate(explanation1, explanation2, pred=False):
         return scores
     
 
-def translate_pairwise(explanation_set, pred=True):
+def translate_pairwise(explanation_set, non_zero_explanation_set, pred=True):
     length_explanations = int(len(explanation_set) / 5)
     r2 = {}
     mse = {}
@@ -29,8 +25,13 @@ def translate_pairwise(explanation_set, pred=True):
     for i in range(5):
         for j in range(5):
             if i != j:
-                explanation1 = explanation_set[i*length_explanations:(i+1)*length_explanations].numpy()
-                explanation2 = explanation_set[j*length_explanations:(j+1)*length_explanations].numpy()
+                if i == 2 or j == 2:
+                    ex_length = int(len(non_zero_explanation_set) / 5)
+                    explanation1 = non_zero_explanation_set[i*ex_length:(i+1)*ex_length].numpy()
+                    explanation2 = non_zero_explanation_set[j*ex_length:(j+1)*ex_length].numpy()
+                else:
+                    explanation1 = explanation_set[i*length_explanations:(i+1)*length_explanations].numpy()
+                    explanation2 = explanation_set[j*length_explanations:(j+1)*length_explanations].numpy()
                 mse_score, r2_score = translate(explanation1, explanation2, pred)
                 r2[number_method[i] + '_' + number_method[j]] = r2_score
                 mse[number_method[i] + '_' + number_method[j]] = mse_score

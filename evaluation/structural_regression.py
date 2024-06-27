@@ -78,7 +78,7 @@ def get_pairwise_explanations2(data_collector, model_number=1):
 
 
 
-def get_pairwise_explanations(explanations_all):
+def get_pairwise_explanations(explanations_all, non_zero_explanations):
     pairs = {}
     method_list = ['ig', 'ks', 'li', 'sg', 'vg']
 
@@ -88,43 +88,51 @@ def get_pairwise_explanations(explanations_all):
         method1 = method_list[0]
         for j in range(len(method_list)-1):
             method2 = method_list[j+1]
-            dataset = separate_into_pairs(explanations_all, method1, method2)
+            dataset = separate_into_pairs(explanations_all, non_zero_explanations, method1, method2)
             pairs[f'{method1}_{method2}'] = dataset
         method_list.pop(0)
 
     return pairs
 
 
-def separate_into_pairs(explanations_all, method1, method2):
+def separate_into_pairs(explanations_all, non_zero_explanations, method1, method2):
 
     explanation_length = int(len(explanations_all)/5)
+    non_zero_length = int(len(non_zero_explanations)/5)
 
     dataset = torch.ones((1, len(explanations_all[0])))
+
+    if method1 == 'li' or method2 == 'li':
+        explanations = non_zero_explanations
+        ex_length = non_zero_length
+    else:
+        explanations = explanations_all
+        ex_length = explanation_length
 
     for i in range(2):
         method = [method1, method2][i]
 
         if method == 'ig':
-            dataset = torch.vstack((dataset, explanations_all[0:explanation_length]))
+            dataset = torch.vstack((dataset, explanations[0:ex_length]))
         elif method == 'ks':
-            dataset = torch.vstack((dataset, explanations_all[explanation_length:explanation_length*2]))
+            dataset = torch.vstack((dataset, explanations[ex_length:ex_length*2]))
         elif method == 'li':
-            dataset = torch.vstack((dataset, explanations_all[explanation_length*2:explanation_length*3]))
+            dataset = torch.vstack((dataset, explanations[ex_length*2:ex_length*3]))
         elif method == 'sg':
-            dataset = torch.vstack((dataset, explanations_all[explanation_length*3:explanation_length*4]))
+            dataset = torch.vstack((dataset, explanations[ex_length*3:ex_length*4]))
         elif method == 'vg':
-            dataset = torch.vstack((dataset, explanations_all[explanation_length*4:explanation_length*5]))
+            dataset = torch.vstack((dataset, explanations[ex_length*4:ex_length*5]))
 
     dataset = dataset[1:]
     return dataset 
     
 
 
-def pairwise_kfold(explanations_all, k=10, random_state=44):
+def pairwise_kfold(explanations_all, non_zero_explanations, k=10, random_state=44):
     # pairs = get_pairwise_explanations(data_collector, model_number)
     
     model = LogisticRegression(random_state=10, max_iter=100)
-    pairs = get_pairwise_explanations(explanations_all)
+    pairs = get_pairwise_explanations(explanations_all, non_zero_explanations)
 
     scores = {}
 

@@ -20,39 +20,29 @@ def analyze_explanations(explanation_set, n_fa, k_fa, model_number=1, n_neighbor
     fa_matrix = fa_average_pairwise(data_collector, n_fa, k_fa, model_number)
     visualize_fa(fa_matrix)
 
-    # if masked and scaled:
-    #     data_collector.mask_features(mask, k_mask, scaled=True)
-    #     umap_data = data_collector.masked_explanations
-    # elif masked and not scaled:
-    #     data_collector.mask_features(mask, k_mask, scaled=False)
-    #     umap_data = data_collector.masked_explanations
-    # elif scaled and not masked:
-    #     umap_data = data_collector.scaled_explanations
-    # else:
-    #     umap_data = data_collector.explanations_all
-
-    # embedding = project_umap(umap_data, n_neighbors=n_neighbors, min_dist=min_dist)
-    # visualize_umap(umap_data, embedding)
-
     if masked and scaled:
         data_collector.mask_features(k_mask, mask, scaled=True)
         umap_data = data_collector.masked_explanations
         regression_data = data_collector.masked_explanations
+        non_zero_data = data_collector.non_zero_masked_explanations
     elif masked and not scaled:
         data_collector.mask_features(k_mask, mask, scaled=False)
         umap_data = data_collector.masked_explanations
         regression_data = data_collector.masked_explanations
+        non_zero_data = data_collector.non_zero_masked_explanations
     elif scaled and not masked:
         umap_data = data_collector.scaled_explanations
         regression_data = data_collector.scaled_explanations
+        non_zero_data = data_collector.non_zero_explanations
     else:
         umap_data = data_collector.explanations_all
         regression_data = data_collector.explanations_all
+        non_zero_data = data_collector.non_zero_explanations
 
     embedding = project_umap(umap_data, n_neighbors=n_neighbors, min_dist=min_dist)
     visualize_umap(umap_data, embedding)
 
-    scores = pairwise_kfold(regression_data)
+    scores = pairwise_kfold(regression_data, non_zero_data)
     visualize_scores(scores)
 
 

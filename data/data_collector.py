@@ -9,12 +9,15 @@ from sklearn.preprocessing import MaxAbsScaler
 
 class DataCollector():
 
-    def __init__(self, explanation_set):
+    def __init__(self, explanation_set, model_number=1):
         self.explanation_set_name = explanation_set
         self.explanation_set = self.collect_data(explanation_set)
-        self.explanations_all = self.collect_all_methods()
+        self.explanations_all = self.collect_all_methods(model_number=model_number)
         self.scaled_explanations = self.scale_data(with_label=True)
         self.masked_explanations = self.collect_all_methods()
+        self.explanation_method_length = int(len(self.explanations_all) / 5)
+        self.non_zero_explanations = self.create_non_zero_dataset()
+        self.non_zero_masked_explanations = self.non_zero_explanations.clone()
         
 
     def collect_data(self, dataset_name):
@@ -91,6 +94,7 @@ class DataCollector():
         keys = self.get_keys(model_number)
 
         method_keys = []
+        lime_included = False
         for i in range(2):
             method = [method1, method2][i]
             if method == 'ig':
@@ -99,6 +103,7 @@ class DataCollector():
                 method_keys.append(keys[1])
             elif method == 'li':
                 method_keys.append(keys[2])
+                lime_included = True
             elif method == 'sg':
                 method_keys.append(keys[3])
             elif method == 'vg':
@@ -190,8 +195,10 @@ class DataCollector():
 
         if scaled:
             explanation_masked = self.scaled_explanations.clone()
+            non_zero_explanations = self.non_zero_explanations.clone()
         else:
             explanation_masked = self.explanations_all.clone()
+            non_zero_explanations = self.non_zero_masked_explanations.clone()
 
         for explanation in explanation_masked[:, :-1]:
             explanation_absolute = torch.abs(explanation)
@@ -199,5 +206,39 @@ class DataCollector():
             explanation[indices] = mask
 
         self.masked_explanations[:, :-1] = explanation_masked[:, :-1]
+
+        for explanation in non_zero_explanations[:, :-1]:
+            explanation_absolute = torch.abs(explanation)
+            values, indices = torch.topk(explanation_absolute, number_of_masks, largest=False)
+            explanation[indices] = mask
+
+        self.non_zero_masked_explanations[:, :-1] = non_zero_explanations[:, :-1]
+
+    
+
+    def find_lime_zero_explanations(self):
+        explanation_length = self.explanation_method_length
+        index_list = []
+        explanation_count = 0
+        for explanation in self.explanations_all[2*explanation_length:3*explanation_length, :-1]:
+            non_zero_features = 0
+            for i in range(len(explanation)):
+                if explanation[i] != 0:
+                    non_zero_features += 1
+            if non_zero_features == 0:
+                index_list.append(explanation_count)
+            explanation_count += 1
+        return index_list
+    
+
+    def create_non_zero_dataset(self):
+        index_list = self.find_lime_zero_explanations()
+        explanation_length = self.explanation_method_length
+        lime_explanation_set = self.scaled_explanations.clone()
+        remaining_indices = [i for i in range(explanation_length) if i not in index_list]
+        all_indices = []
+        for i in range(5):
+            all_indices += [i*explanation_length + index for index in remaining_indices]
+        lime_explanation_set = lime_explanation_set[all_indices]
+        return lime_explanation_set
             
-        return explanation_masked

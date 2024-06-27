@@ -30,17 +30,16 @@ def count_features_per_method(explanation_set, with_label=True):
 def count_lime_features(method_explanation_set):
     lime_feature_count = torch.zeros(len(method_explanation_set[0]))
     ex_counter = 0
-    print(lime_feature_count)
+    index_list = []
     for explanation in method_explanation_set[:, :-1]:
-        ex_counter += 1
         counter_temp = 0
         for i in range(len(explanation)):
             if explanation[i] != 0:
                 counter_temp += 1
-        # if counter_temp == 0:
-            # print(ex_counter)
+        if counter_temp == 0:
+            index_list.append(ex_counter)
         lime_feature_count[counter_temp] += 1
-    
+        ex_counter += 1
     return lime_feature_count
                 
 
