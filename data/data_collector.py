@@ -183,8 +183,8 @@ class DataCollector():
     
 
     def mask_features(self, k=3, mask=0, scaled=False):
-
-        number_of_features = len(self.explanations_all[0]-1)
+        
+        number_of_features = len(self.explanations_all[0])-1
 
         number_of_masks = number_of_features - k
 
@@ -193,7 +193,7 @@ class DataCollector():
         else:
             explanation_masked = self.explanations_all.clone()
 
-        for explanation in explanation_masked[:-1]:
+        for explanation in explanation_masked[:, :-1]:
             explanation_absolute = torch.abs(explanation)
             values, indices = torch.topk(explanation_absolute, number_of_masks, largest=False)
             explanation[indices] = mask
