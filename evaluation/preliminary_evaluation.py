@@ -67,3 +67,11 @@ def fa_difference(explanation_set, keys, n, start=0, stop=4, steps=1, random_com
         fa_diff = np.hstack((fa_diff, random_results.reshape(-1, 1)))
 
     return fa_diff[1:], k_list
+
+
+# def fa_model_comparison(explanation_set, k, model_amount=3):
+#     explanation_length = int(len(explanation_set)/model_amount)
+#     fa_matrix = np.zeros((model_amount, model_amount))
+
+        
+

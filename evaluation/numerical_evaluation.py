@@ -41,6 +41,29 @@ def count_lime_features(method_explanation_set):
         lime_feature_count[counter_temp] += 1
         ex_counter += 1
     return lime_feature_count
+
+
+def calculate_variance(explanation_set, exclude_zeros=False, all_methods=True):
+
+    if all_methods:
+        method_variance = {}
+        method_length = int(len(explanation_set)/5)
+        for i in range(5):
+            if exclude_zeros:
+                method_variance[i] = torch.var(explanation_set[i*method_length:(i+1)*method_length, :-1][explanation_set[i*method_length:(i+1)*method_length, :-1]!=0], dim=0)
+            else:
+                method_variance[i] = torch.var(explanation_set[i*method_length:(i+1)*method_length, :-1], dim=0)
+    else: 
+        if exclude_zeros:
+            method_variance = torch.var(explanation_set[:, :-1][explanation_set[:, :-1] != 0], dim=0)
+        else:
+            method_variance = torch.var(explanation_set[:, :-1], dim=0)
+
+    return method_variance
+
+
+
+
                 
 
 
