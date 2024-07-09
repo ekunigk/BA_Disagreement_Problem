@@ -39,8 +39,8 @@ def analyze_explanations(explanation_set, n_fa, k_fa, model_number=1, n_neighbor
         regression_data = data_collector.explanations_all
         non_zero_data = data_collector.non_zero_explanations
 
-    embedding = project_umap(umap_data, n_neighbors=n_neighbors, min_dist=min_dist)
-    visualize_umap(umap_data, embedding)
+    embedding, method_length, non_zero_method_length = project_umap(umap_data, non_zero_data, n_neighbors=n_neighbors, min_dist=min_dist)
+    visualize_umap(embedding, method_length, non_zero_method_length)
 
     scores = pairwise_kfold(regression_data, non_zero_data)
     visualize_scores(scores)

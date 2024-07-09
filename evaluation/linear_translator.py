@@ -28,6 +28,7 @@ def translate_pairwise(explanation_set, non_zero_explanation_set, pred=True, kfo
     r2 = {}
     mse = {}
     mean_mse = {}
+    variances = {}
     number_method = {0: 'IG', 1: 'KS', 2: 'LI', 3: 'SG', 4: 'VG'}
     for i in range(5):
         for j in range(5):
@@ -40,13 +41,15 @@ def translate_pairwise(explanation_set, non_zero_explanation_set, pred=True, kfo
                     explanation1 = explanation_set[i*length_explanations:(i+1)*length_explanations, :-1] # .numpy()
                     explanation2 = explanation_set[j*length_explanations:(j+1)*length_explanations, :-1] # .numpy()
                 if kfold:
-                    mse_score, r2_score = translate_kfold(explanation1, explanation2, pred=pred)
+                    mse_score, r2_score, variance = translate_kfold(explanation1, explanation2, pred=pred)
                 else:
                     mse_score, r2_score = translate(explanation1, explanation2, pred)
+                    variance = 0
                 r2[number_method[i] + '_' + number_method[j]] = r2_score
                 mse[number_method[i] + '_' + number_method[j]] = mse_score
                 mean_mse[number_method[i] + '_' + number_method[j]] = compare_to_mean_baseline(explanation2)
-    return r2, mse, mean_mse
+                variances[number_method[i] + '_' + number_method[j]] = variance
+    return r2, mse, mean_mse, variances
 
 
 def translate_kfold(explanation1, explanation2, k=10, random_state=44, pred=True):
@@ -70,10 +73,12 @@ def translate_kfold(explanation1, explanation2, k=10, random_state=44, pred=True
             y_pred = model.predict(X_test)
             mse = mean_squared_error(y_test, y_pred)
             mse_scores.append(mse)
-
+            
         scores.append(score)
+    if pred:
+        variance = np.var(mse_scores)
 
-    return np.mean(mse_scores), np.mean(scores)
+    return np.mean(mse_scores), np.mean(scores), variance
 
 
 def compare_to_mean_baseline(explanation2):

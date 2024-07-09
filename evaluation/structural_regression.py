@@ -82,7 +82,7 @@ def get_pairwise_explanations(explanations_all, non_zero_explanations):
     pairs = {}
     method_list = ['ig', 'ks', 'li', 'sg', 'vg']
 
-    print(explanations_all[0:10])
+    # print(explanations_all[0:10])
 
     for i in range(4):
         method1 = method_list[0]

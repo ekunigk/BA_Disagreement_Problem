@@ -3,14 +3,25 @@ from sklearn.preprocessing import StandardScaler
 import matplotlib.pyplot as plt
 import seaborn as sns
 import umap
+import torch
 
-def project_umap(dataset, n_neighbors=15, min_dist=0.1, scale=False):
+def project_umap(dataset, non_zero_dataset, n_neighbors=15, min_dist=0.1, scale=False):
     feature_set = dataset[:, :-1]
+
+    method_length = int(len(feature_set)/5)
+    non_zero_feature_set = non_zero_dataset[:, :-1]
+    non_zero_method_length = int(len(non_zero_feature_set)/5)
+    ig_ks = feature_set[:2*method_length]
+    li = non_zero_feature_set[2*non_zero_method_length:3*non_zero_method_length]
+    vg_sg = feature_set[3*method_length:]
+    
+    final_feature_set = torch.cat((ig_ks, li, vg_sg), 0)
+
     if scale:
-        feature_set = StandardScaler().fit_transform(feature_set)
+        feature_set = StandardScaler().fit_transform(final_feature_set)
     reducer = umap.UMAP(n_neighbors=n_neighbors, min_dist=min_dist)
-    embedding = reducer.fit_transform(feature_set)
-    return embedding
+    embedding = reducer.fit_transform(final_feature_set)
+    return embedding, method_length, non_zero_method_length
 
 def visualize_umap_nolegend(dataset, embedding, scale=False):
 
@@ -42,17 +53,17 @@ def visualize_umap2(dataset, embedding, scale=False):
     plt.show()
     return embedding
 
-def visualize_umap(dataset, embedding):
+def visualize_umap(embedding, method_length, non_zero_method_length):
 
     length = int(len(embedding) / 5)
 
     colors = ['blue', 'orange', 'green', 'red', 'purple']
 
-    ig = plt.scatter(embedding[0:length, 0], embedding[0:length, 1], color=colors[0], linewidths=0.8, edgecolors='w', alpha=0.9)
-    ks = plt.scatter(embedding[length:(2*length), 0], embedding[length:(2*length), 1], color=colors[1], linewidths=0.8, edgecolors='w', alpha=0.9)
-    li = plt.scatter(embedding[(2*length):(3*length), 0], embedding[(2*length):(3*length), 1], color=colors[2], linewidths=0.8, edgecolors='w', alpha=0.9)
-    sg = plt.scatter(embedding[(3*length):(4*length), 0], embedding[(3*length):(4*length), 1], color=colors[3], linewidths=0.8, edgecolors='w', alpha=0.9)
-    vg = plt.scatter(embedding[(4*length):, 0], embedding[(4*length):, 1], color=colors[4], linewidths=0.8, edgecolors='w', alpha=0.9)
+    ig = plt.scatter(embedding[0:method_length, 0], embedding[0:method_length, 1], color=colors[0], linewidths=0.8, edgecolors='w', alpha=0.9)
+    ks = plt.scatter(embedding[method_length:(2*method_length), 0], embedding[method_length:(2*method_length), 1], color=colors[1], linewidths=0.8, edgecolors='w', alpha=0.9)
+    li = plt.scatter(embedding[(2*method_length):(2*method_length+non_zero_method_length), 0], embedding[(2*method_length):(2*method_length+non_zero_method_length), 1], color=colors[2], linewidths=0.8, edgecolors='w', alpha=0.9)
+    sg = plt.scatter(embedding[(2*method_length+non_zero_method_length):(3*method_length+non_zero_method_length), 0], embedding[(2*method_length+non_zero_method_length):(3*method_length+non_zero_method_length), 1], color=colors[3], linewidths=0.8, edgecolors='w', alpha=0.9)
+    vg = plt.scatter(embedding[(3*method_length+non_zero_method_length):, 0], embedding[(3*method_length+non_zero_method_length):, 1], color=colors[4], linewidths=0.8, edgecolors='w', alpha=0.9)
 
     plt.legend((ig, ks, li, sg, vg),
                ('ig', 'ks', 'li', 'sg', 'vg'),
