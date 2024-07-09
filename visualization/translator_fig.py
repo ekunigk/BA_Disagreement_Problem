@@ -31,3 +31,10 @@ def visualize_multiple_scores(scores_1, scores_2, scores_3, labels, title, basel
     plt.title(title)
     plt.legend(labels)
     plt.show()
+
+
+def analyze_residuals(residuals, dim=0):
+    residual = residuals[dim]
+    sns.histplot(residual)
+    plt.title('Residuals')
+    plt.show()

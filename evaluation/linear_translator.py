@@ -3,16 +3,19 @@ from sklearn.model_selection import train_test_split, KFold
 from sklearn.metrics import mean_squared_error
 import torch
 import numpy as np
+import seaborn as sns
+import matplotlib.pyplot as plt
 
 
 def translate(explanation1, explanation2, pred=False):
     model = LinearRegression()
-    print(explanation1.shape, explanation2.shape)
     X_train, X_test, y_train, y_test = train_test_split(explanation1, explanation2, test_size=0.2, random_state=43)
+    X_train, X_test, y_train, y_test = X_train.numpy(), X_test.numpy(), y_train.numpy(), y_test.numpy()
     model.fit(X_train, y_train)
     B = model.coef_
     y_pred = model.predict(X_test)
     scores = model.score(X_test, y_test)
+    # analyze_residuals(y_test, y_pred)
     if pred:
         mse = mean_squared_error(y_test, y_pred)
         return mse, scores
@@ -79,12 +82,14 @@ def compare_to_mean_baseline(explanation2):
     mean_array[:,:] = mean
     mean_mse = mean_squared_error(explanation2, mean_array)
     return mean_mse
+ 
 
 
-
-
-    
-
+def analyze_residuals(y_test, y_pred):
+    residuals = y_test - y_pred
+    sns.histplot(residuals[:, 0])
+    plt.title('Residuals')
+    plt.show()
 
         
 
