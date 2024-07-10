@@ -71,6 +71,7 @@ def translate_kfold(explanation1, explanation2, k=10, random_state=44, pred=True
 
         if pred:
             y_pred = model.predict(X_test)
+            print(f'prediction: {y_pred[0]}, actual: {y_test[0]}')
             mse = mean_squared_error(y_test, y_pred)
             mse_scores.append(mse)
             
