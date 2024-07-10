@@ -23,13 +23,14 @@ def translate(explanation1, explanation2, pred=False):
         return 0, scores
     
 
-def translate_pairwise(explanation_set, non_zero_explanation_set, pred=True, kfold=True):
+def translate_pairwise(explanation_set, non_zero_explanation_set, pred=True, kfold=True, masked=False, masked_indices=None, non_zero_masked_indices=None):
     length_explanations = int(len(explanation_set) / 5)
     r2 = {}
     mse = {}
     mean_mse = {}
     variances = {}
     number_method = {0: 'IG', 1: 'KS', 2: 'LI', 3: 'SG', 4: 'VG'}
+    ex_masked_indices = None
     for i in range(5):
         for j in range(5):
             if i != j:
@@ -37,13 +38,17 @@ def translate_pairwise(explanation_set, non_zero_explanation_set, pred=True, kfo
                     ex_length = int(len(non_zero_explanation_set) / 5)
                     explanation1 = non_zero_explanation_set[i*ex_length:(i+1)*ex_length, :-1] # .numpy()
                     explanation2 = non_zero_explanation_set[j*ex_length:(j+1)*ex_length, :-1] # .numpy()
+                    if masked:
+                        ex_masked_indices = non_zero_masked_indices[j*ex_length:(j+1)*ex_length]
                 else:
                     explanation1 = explanation_set[i*length_explanations:(i+1)*length_explanations, :-1] # .numpy()
                     explanation2 = explanation_set[j*length_explanations:(j+1)*length_explanations, :-1] # .numpy()
+                    if masked:
+                        ex_masked_indices = masked_indices[j*length_explanations:(j+1)*length_explanations]
                 if kfold:
-                    mse_score, r2_score, variance = translate_kfold(explanation1, explanation2, pred=pred)
+                    mse_score, r2_score, variance = translate_kfold(explanation1, explanation2, pred=pred, masked=masked, masked_indices=ex_masked_indices)
                 else:
-                    mse_score, r2_score = translate(explanation1, explanation2, pred)
+                    mse_score, r2_score = translate(explanation1, explanation2, pred, masked=masked)
                     variance = 0
                 r2[number_method[i] + '_' + number_method[j]] = r2_score
                 mse[number_method[i] + '_' + number_method[j]] = mse_score
@@ -52,7 +57,7 @@ def translate_pairwise(explanation_set, non_zero_explanation_set, pred=True, kfo
     return r2, mse, mean_mse, variances
 
 
-def translate_kfold(explanation1, explanation2, k=10, random_state=44, pred=True):
+def translate_kfold(explanation1, explanation2, k=10, random_state=44, pred=True, masked=False, masked_indices=None):
     X = explanation1
     y = explanation2
     model = LinearRegression()
@@ -71,8 +76,13 @@ def translate_kfold(explanation1, explanation2, k=10, random_state=44, pred=True
 
         if pred:
             y_pred = model.predict(X_test)
-            print(f'prediction: {y_pred[0]}, actual: {y_test[0]}')
-            mse = mean_squared_error(y_test, y_pred)
+            # print(y_pred[:10])
+            # print(f'prediction: {y_pred[0]}, actual: {y_test[0]}')
+            if masked:
+                mse = calculate_masked_mse(masked_indices[test_idx], y_pred, y_test)
+            else:
+                mse = mean_squared_error(y_test, y_pred)
+                print(mse)
             mse_scores.append(mse)
             
         scores.append(score)
@@ -96,6 +106,33 @@ def analyze_residuals(y_test, y_pred):
     sns.histplot(residuals[:, 0])
     plt.title('Residuals')
     plt.show()
+
+
+def create_index_matrix(masked_indices, number_of_features):
+    index_matrix = np.ones((len(masked_indices), number_of_features))
+    for i, indices in enumerate(masked_indices):
+        for index in indices:
+            index = int(index)
+            index_matrix[i][index] = 0
+    
+    return index_matrix
+
+
+def calculate_masked_mse(masked_indices, y_pred, y_true):
+    number_of_features = len(y_pred[0])
+    index_matrix = create_index_matrix(masked_indices, number_of_features)
+    # print(y_pred[:10])
+
+    masked_y_pred = np.multiply(y_pred, index_matrix)
+    masked_mse = mean_squared_error(y_true, masked_y_pred)
+
+    # print(masked_y_pred[:10])
+    print(masked_mse)
+
+    return masked_mse
+    
+
+
 
         
 

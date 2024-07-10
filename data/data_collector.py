@@ -193,6 +193,9 @@ class DataCollector():
 
         number_of_masks = number_of_features - k
 
+        masked_indices = torch.zeros((1, number_of_masks))
+        masked_indices_non_zero = torch.zeros((1, number_of_masks))
+
         if scaled:
             explanation_masked = self.scaled_explanations.clone()
             non_zero_explanations = self.non_zero_explanations.clone()
@@ -204,6 +207,7 @@ class DataCollector():
             explanation_absolute = torch.abs(explanation)
             values, indices = torch.topk(explanation_absolute, number_of_masks, largest=False)
             explanation[indices] = mask
+            masked_indices = torch.vstack((masked_indices, indices))
 
         self.masked_explanations[:, :-1] = explanation_masked[:, :-1]
 
@@ -211,8 +215,11 @@ class DataCollector():
             explanation_absolute = torch.abs(explanation)
             values, indices = torch.topk(explanation_absolute, number_of_masks, largest=False)
             explanation[indices] = mask
+            masked_indices_non_zero = torch.vstack((masked_indices_non_zero, indices))
 
         self.non_zero_masked_explanations[:, :-1] = non_zero_explanations[:, :-1]
+
+        return masked_indices[1:], masked_indices_non_zero[1:]
 
     
 
