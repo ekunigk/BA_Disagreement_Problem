@@ -11,7 +11,7 @@ def visualize_translation_scores(scores_1):
     plt.show()
 
 
-def visualize_multiple_scores(scores_1, scores_2, scores_3, labels, title, baseline=0):
+def visualize_multiple_scores2(scores_1, scores_2, scores_3, labels, title, baseline=0):
     x = scores_1.keys()
     y1 = scores_1.values()
     y2 = scores_2.values()
@@ -33,8 +33,36 @@ def visualize_multiple_scores(scores_1, scores_2, scores_3, labels, title, basel
     plt.show()
 
 
+
+def visualize_multiple_scores(score_dict, labels, title, figsize=(18,6)):
+    plt.figure(figsize=figsize)
+    keys = score_dict.keys()
+    for key in keys:
+        plt.scatter(x=score_dict[key].keys(), y=score_dict[key].values(), alpha=0.6)
+    plt.title(title)
+    plt.legend(labels)
+    plt.show()
+
+
 def analyze_residuals(residuals, dim=0):
     residual = residuals[dim]
     sns.histplot(residual)
     plt.title('Residuals')
+    plt.show()
+
+
+def show_rankings(ranking_dict, label, title='Ranking of MSE of linear translation', figsize=(18, 6),):
+    x = ranking_dict.keys()
+
+    plt.figure(figsize=figsize)
+    
+    for i in range(len(ranking_dict[list(ranking_dict.keys())[0]])):
+        y = [ranking[i] for ranking in ranking_dict.values()]
+        plt.scatter(x, y, alpha=0.6)
+
+    plt.ylim(0,22)
+    plt.yticks(np.arange(0, 22, 2))
+    
+    plt.legend(label)
+    plt.title(title)
     plt.show()

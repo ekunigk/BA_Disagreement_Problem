@@ -82,7 +82,6 @@ def translate_kfold(explanation1, explanation2, k=10, random_state=44, pred=True
                 mse = calculate_masked_mse(masked_indices[test_idx], y_pred, y_test)
             else:
                 mse = mean_squared_error(y_test, y_pred)
-                print(mse)
             mse_scores.append(mse)
             
         scores.append(score)
@@ -126,8 +125,6 @@ def calculate_masked_mse(masked_indices, y_pred, y_true):
     masked_y_pred = np.multiply(y_pred, index_matrix)
     masked_mse = mean_squared_error(y_true, masked_y_pred)
 
-    # print(masked_y_pred[:10])
-    print(masked_mse)
 
     return masked_mse
     
