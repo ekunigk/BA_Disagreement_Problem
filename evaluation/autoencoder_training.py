@@ -2,8 +2,9 @@ import torch
 from torch import nn
 from torch import optim
 import numpy as np
-from sklearn.model_selection import train_test_split
+from sklearn.model_selection import train_test_split, KFold
 from sklearn.metrics import mean_squared_error
+from evaluation.autoencoder import Autoencoder
 
 
 def train_autoencoder(autoencoder, explanation1, explanation2, num_epochs=10, lr=0.001, batch_size=32):
@@ -49,11 +50,38 @@ def translate_with_autoencoder(autoencoder, explanation_set, non_zero_explanatio
                     explanation1 = explanation_set[i*ex_length:(i+1)*ex_length, :-1] 
                     explanation2 = explanation_set[j*ex_length:(j+1)*ex_length, :-1]
             
-                X_train, X_test, y_train, y_test = train_test_split(explanation1, explanation2, test_size=0.2, random_state=43)
+                X_train, X_test, y_train, y_test = train_test_split(explanation1, explanation2, test_size=0.2, random_state=46)
                 train_autoencoder(autoencoder, X_train, y_train, num_epochs, lr, batch_size)
+                # mse_temp = []
+                # kf = KFold(n_splits=10, random_state=44, shuffle=True)
+                # for train_idx, test_idx in kf.split(explanation1):
+
+                #     X_train = torch.index_select(explanation1, 0, torch.tensor(train_idx))
+                #     X_test = torch.index_select(explanation1, 0, torch.tensor(test_idx))
+                #     y_train, y_test = explanation2[train_idx], explanation2[test_idx]
+                
+                #     train_autoencoder(autoencoder, X_train, y_train, num_epochs, lr, batch_size)
+                #     autoencoder.eval()
+                #     y_pred = autoencoder(X_test)
+                #     mse_temp.append(mean_squared_error(y_test, y_pred.detach().numpy()))
+                # mse[number_method[i] + '_' + number_method[j]] = np.mean(mse_temp)
+
                 autoencoder.eval()
                 y_pred = autoencoder(X_test)
                 mse[number_method[i] + '_' + number_method[j]] = mean_squared_error(y_test, y_pred.detach().numpy())
         
     return mse
+
+
+def test_ae_architectures(dc, list_of_layers):
+    mse_dict = {}
+
+    for key in list_of_layers:
+        layers_encode = list_of_layers[key][0]
+        layers_decode = list_of_layers[key][1]
+        autoencoder = Autoencoder(layers_encode, layers_decode)
+        mse = translate_with_autoencoder(autoencoder, dc.scaled_explanations, dc.non_zero_explanations, num_epochs=30, lr=0.001, batch_size=16)
+        mse_dict[key] = mse
+
+    return mse_dict
                 

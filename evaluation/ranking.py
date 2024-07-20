@@ -47,6 +47,31 @@ def separate_concepts(merged_dict):
     return grad_dict, perturb_dict, mixed_dict
 
 
+def sum_mses(mse_dict):
+    sum_dict = {}
+    for key in mse_dict.keys():
+        sum_temp = 0
+        for key2 in mse_dict[key].keys():
+            sum_temp += mse_dict[key][key2]
+        sum_dict[key] = sum_temp
+    
+    return sum_dict
+
+
+def find_best_architecture(mse_dict):
+    best_dict = {}
+    key_list = list(mse_dict.keys())
+    for key in mse_dict[key_list[0]].keys():
+        temp_mse = 10000
+        for key1 in key_list:
+            if mse_dict[key1][key] < temp_mse:
+                temp_mse = mse_dict[key1][key]
+                best_dict[key] = key1
+    
+    return best_dict
+
+        
+
 
 
 
