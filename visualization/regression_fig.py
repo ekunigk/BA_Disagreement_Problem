@@ -1,5 +1,6 @@
 import seaborn as sns
 import matplotlib.pyplot as plt
+import numpy as np
 
 def visualize_scores(scores):
     method_list = list(scores.keys())
@@ -37,3 +38,12 @@ def visualize_attempt(scores_all, legend_names=('one', 'two', 'three')):
 
     # plt.plot(a, b, c)
     plt.show()
+
+
+def visualize_scores_temp(scores):
+    score_array = np.array(list(scores.values())).T
+    plt.boxplot(score_array)
+    plt.xticks(range(1, len(scores)+1), scores.keys())
+    plt.title('LR Classification Accuracy')
+    plt.show()
+

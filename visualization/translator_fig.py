@@ -66,3 +66,14 @@ def show_rankings(ranking_dict, label, title='Ranking of MSE of linear translati
     plt.legend(label)
     plt.title(title)
     plt.show()
+
+
+def show_rankings_bp(ranking_dict, title='Ranking of MSE of translation', figsize=(18, 6)):
+    mse_array = np.array(list(ranking_dict.values()))
+    mse_array = mse_array.T
+    plt.boxplot(mse_array)
+    plt.ylim(0, 22)
+    plt.yticks(np.arange(0, 22, 2))
+    plt.xticks(np.arange(1, len(ranking_dict.keys())+1), ranking_dict.keys())
+    plt.title(title)
+    plt.show()
