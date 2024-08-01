@@ -50,7 +50,7 @@ def translate_with_autoencoder(autoencoder, explanation_set, non_zero_explanatio
                     explanation1 = explanation_set[i*ex_length:(i+1)*ex_length, :-1] 
                     explanation2 = explanation_set[j*ex_length:(j+1)*ex_length, :-1]
             
-                X_train, X_test, y_train, y_test = train_test_split(explanation1, explanation2, test_size=0.2, random_state=46)
+                X_train, X_test, y_train, y_test = train_test_split(explanation1, explanation2, test_size=0.2, random_state=49)
                 train_autoencoder(autoencoder, X_train, y_train, num_epochs, lr, batch_size)
                 # mse_temp = []
                 # kf = KFold(n_splits=10, random_state=44, shuffle=True)
