@@ -205,7 +205,7 @@ class DataCollector():
 
         for explanation in explanation_masked[:, :-1]:
             explanation_absolute = torch.abs(explanation)
-            values, indices = torch.topk(explanation_absolute, number_of_masks, largest=False)
+            values, indices = torch.topk(explanation, number_of_masks, largest=False)
             explanation[indices] = mask
             masked_indices = torch.vstack((masked_indices, indices))
 
@@ -213,7 +213,7 @@ class DataCollector():
 
         for explanation in non_zero_explanations[:, :-1]:
             explanation_absolute = torch.abs(explanation)
-            values, indices = torch.topk(explanation_absolute, number_of_masks, largest=False)
+            values, indices = torch.topk(explanation, number_of_masks, largest=False)
             explanation[indices] = mask
             masked_indices_non_zero = torch.vstack((masked_indices_non_zero, indices))
 
