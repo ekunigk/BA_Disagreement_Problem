@@ -2,12 +2,12 @@ from data.data_collector import DataCollector
 from evaluation.linear_translator import translate_pairwise
 from evaluation.autoencoder import Autoencoder
 from evaluation.autoencoder_training import translate_with_autoencoder
-from visualization.translator_fig import visualize_multiple_scores, show_rankings
+from visualization.translator_fig import visualize_multiple_scores, show_rankings, show_rankings_bp
 from evaluation.ranking import merge_rankings, create_rankings, separate_concepts
 
 import numpy as np
 
-def evaluate_two_datasets(model_number1=1, model_number2=1):
+def evaluate_two_datasets(model_number1=1, model_number2=1, eval=True):
 
     dc_bw = DataCollector('breastw', model_number=model_number1)
     dc_sb = DataCollector('spambase', model_number=model_number2)
@@ -27,24 +27,16 @@ def evaluate_two_datasets(model_number1=1, model_number2=1):
     score_dict = {'bw_mse': bw_mse, 'bw_mse 6' : bw_mse_m6, 'bw_mse 3': bw_mse_m3, 'sb_mse': sb_mse, 'sb_mse 38': sb_mse_m38, 'sb_mse 19': sb_mse_m19}
     labels = ('bw_mse', 'bw_mse 6', 'bw_mse 3', 'sb_mse', 'sb_mse 38', 'sb_mse 19')
 
-    visualize_multiple_scores(score_dict, labels, 'MSE comparison between datasets')
+    title = 'MSE comparison between datasets'
 
-    ranking_dict = merge_rankings(score_dict)
-    grad_dict, perturb_dict, mixed_dict = separate_concepts(ranking_dict)
-    print(grad_dict)
+    if eval:
+        evaluate_translations(score_dict, labels, title)
 
-    show_rankings(grad_dict, labels, 'Gradient based methods')
-    show_rankings(perturb_dict, labels, 'Perturbation based methods')
-    show_rankings(mixed_dict, labels, 'Mixed methods')
-
-    print(np.mean(list(grad_dict.values())))
-    print(np.mean(list(perturb_dict.values())))
-    print(np.mean(list(mixed_dict.values())))
+    return score_dict
 
 
 
-
-def evaluate_models(explanation_set='breastw'):
+def evaluate_models(explanation_set='breastw', eval=True):
     dc1 = DataCollector(explanation_set , model_number=1)
     dc2 = DataCollector(explanation_set , model_number=2)
     dc3 = DataCollector(explanation_set , model_number=3)
@@ -80,21 +72,15 @@ def evaluate_models(explanation_set='breastw'):
 
     labels = ('model 1 mse', 'model 1 mse 6', 'model 1 mse 3', 'model 2 mse', 'model 2 mse 6', 'model 2 mse 3', 'model 3 mse', 'model 3 mse 6', 'model 3 mse 3')
 
-    visualize_multiple_scores(score_dict, labels, 'MSE comparison between models')
+    title = 'MSE comparison between models'
 
-    ranking_dict = merge_rankings(score_dict)
-    grad_dict, perturb_dict, mixed_dict = separate_concepts(ranking_dict)
+    if eval:
+        evaluate_translations(score_dict, labels, title)
 
-    show_rankings(grad_dict, labels, 'Gradient based methods')
-    show_rankings(perturb_dict, labels, 'Perturbation based methods')
-    show_rankings(mixed_dict, labels, 'Mixed methods')
-
-    print(np.mean(list(grad_dict.values())))
-    print(np.mean(list(perturb_dict.values())))
-    print(np.mean(list(mixed_dict.values())))
+    return score_dict
 
 
-def evaluate_autoencoder(explanation_set='breastw', model_number=1, hidden_dim=6, num_epochs=10, lr=0.001, batch_size=32):
+def evaluate_autoencoder(explanation_set='breastw', model_number=1, layers_encode=[9, 16, 5], layers_decode=[5, 16, 9], num_epochs=10, lr=0.001, batch_size=32, eval=True):
     if explanation_set=='breastw':
         input_dim = 9
         mask_1_3 = 6
@@ -104,7 +90,7 @@ def evaluate_autoencoder(explanation_set='breastw', model_number=1, hidden_dim=6
         mask_1_3 = 38
         mask_2_3 = 19
 
-    autoencoder = Autoencoder(input_dim, hidden_dim)
+    autoencoder = Autoencoder(layers_encode, layers_decode)
     dc = DataCollector(explanation_set, model_number=model_number)
 
     mse = translate_with_autoencoder(autoencoder, dc.scaled_explanations, dc.non_zero_explanations, num_epochs, lr, batch_size)
@@ -118,19 +104,33 @@ def evaluate_autoencoder(explanation_set='breastw', model_number=1, hidden_dim=6
     score_dict = {'autoencoder mse': mse, 'autoencoder mse 6': mse_m, 'autoencoder mse 3': mse_m2}
     labels = ('autoencoder mse', 'autoencoder mse 6', 'autoencoder mse 3')
 
-    visualize_multiple_scores(score_dict, labels, 'MSE comparison between autoencoders')
+    title = 'MSE comparison between autoencoders'
+
+    if eval:
+        evaluate_translations(score_dict, labels, title)
+
+    return score_dict
+    
+
+def evaluate_translations(score_dict, labels, title):
+    visualize_multiple_scores(score_dict, labels, title)
 
     ranking_dict = merge_rankings(score_dict)
     grad_dict, perturb_dict, mixed_dict = separate_concepts(ranking_dict)
-
+    
     show_rankings(grad_dict, labels, 'Gradient based methods')
     show_rankings(perturb_dict, labels, 'Perturbation based methods')
     show_rankings(mixed_dict, labels, 'Mixed methods')
 
+    show_rankings_bp(grad_dict)
+    show_rankings_bp(perturb_dict)
+    show_rankings_bp(mixed_dict)
+
     print(np.mean(list(grad_dict.values())))
     print(np.mean(list(perturb_dict.values())))
     print(np.mean(list(mixed_dict.values())))
-    
+
+
 
 
 

@@ -10,11 +10,11 @@ from evaluation.structural_regression import pairwise_kfold
 from evaluation.umap import visualize_umap, project_umap
 
 from visualization.preliminary_fig import visualize_fa
-from visualization.regression_fig import visualize_scores
+from visualization.regression_fig import visualize_scores, visualize_scores_temp
 
 def analyze_explanations(explanation_set, n_fa, k_fa, model_number=1, n_neighbors=15, min_dist=0.1, scaled=False, masked=False, k_mask=3, mask=0):
 
-    data_collector = DataCollector(explanation_set)
+    data_collector = DataCollector(explanation_set, model_number)
     keys = data_collector.get_keys(model_number)
 
     fa_matrix = fa_average_pairwise(data_collector, n_fa, k_fa, model_number)
@@ -43,7 +43,7 @@ def analyze_explanations(explanation_set, n_fa, k_fa, model_number=1, n_neighbor
     visualize_umap(embedding, method_length, non_zero_method_length)
 
     scores = pairwise_kfold(regression_data, non_zero_data)
-    visualize_scores(scores)
+    visualize_scores_temp(scores)
 
 
 
