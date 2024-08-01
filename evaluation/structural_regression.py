@@ -24,6 +24,8 @@ def test_on_kfold(model, two_explanation_set, k=10, random_state=44):
     X = two_explanation_set[:, :-1]
     y = two_explanation_set[:, -1]
 
+    model = LogisticRegression(random_state=10, max_iter=100)
+
     kf = KFold(n_splits=k, shuffle=True, random_state=random_state)
     kf.get_n_splits(X)
 
@@ -44,10 +46,13 @@ def test_on_kfold(model, two_explanation_set, k=10, random_state=44):
 
         scores.append(score)
 
+    variance = np.var(scores)
+
     # print("all scores: ", scores)
+
     # print("mean score: ", np.mean(scores))
 
-    return np.mean(scores)
+    return scores
 
 
 def concatenate_data_explanation(data_collector, two_explanation_set, dataset_name):
@@ -131,16 +136,19 @@ def separate_into_pairs(explanations_all, non_zero_explanations, method1, method
 def pairwise_kfold(explanations_all, non_zero_explanations, k=10, random_state=44):
     # pairs = get_pairwise_explanations(data_collector, model_number)
     
-    model = LogisticRegression(random_state=10, max_iter=100)
+    model = LogisticRegression(random_state=10, max_iter=100, solver='newton-cg')
     pairs = get_pairwise_explanations(explanations_all, non_zero_explanations)
 
     scores = {}
+    variances = {}
 
     for pair in pairs:
         # print(pair)
         two_explanation_set = pairs[pair]
         score = test_on_kfold(model, two_explanation_set, k, random_state=random_state)
         scores[pair] = score
+        # variances[pair] = variance
+
 
     return scores
 

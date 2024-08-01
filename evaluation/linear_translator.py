@@ -127,9 +127,19 @@ def calculate_masked_mse(masked_indices, y_pred, y_true):
 
 
     return masked_mse
-    
 
 
+def calculate_distance_to_baseline(mse_scores, mse_baseline):
+    distances = {}
+    for key, value in mse_scores.items():
+        distances[key] = mse_baseline[key] - value
+    return distances
 
+
+def calculate_percentage_of_baseline(mse_scores, mse_baseline):
+    percentages = {}
+    for key, value in mse_scores.items():
+        percentages[key] = mse_baseline[key] / value
+    return percentages
         
 
