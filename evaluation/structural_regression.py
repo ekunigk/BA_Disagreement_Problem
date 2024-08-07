@@ -136,7 +136,7 @@ def separate_into_pairs(explanations_all, non_zero_explanations, method1, method
 def pairwise_kfold(explanations_all, non_zero_explanations, k=10, random_state=44):
     # pairs = get_pairwise_explanations(data_collector, model_number)
     
-    model = LogisticRegression(random_state=10, max_iter=100, solver='newton-cg')
+    model = LogisticRegression(random_state=10, max_iter=100)
     pairs = get_pairwise_explanations(explanations_all, non_zero_explanations)
 
     scores = {}

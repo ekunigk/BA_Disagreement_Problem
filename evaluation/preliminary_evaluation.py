@@ -10,7 +10,7 @@ def feature_agreement(ex_1, ex_2, k):
 
 def top_features(ex, k):
     ex_abs = torch.abs(ex)
-    values, indices = torch.topk(ex_abs, k, largest=True)
+    values, indices = torch.topk(ex, k, largest=True)
     return indices
 
 

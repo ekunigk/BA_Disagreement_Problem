@@ -99,7 +99,6 @@ def compare_to_mean_baseline(explanation2):
     return mean_mse
  
 
-
 def analyze_residuals(y_test, y_pred):
     residuals = y_test - y_pred
     sns.histplot(residuals[:, 0])
@@ -123,10 +122,21 @@ def calculate_masked_mse(masked_indices, y_pred, y_true):
     # print(y_pred[:10])
 
     masked_y_pred = np.multiply(y_pred, index_matrix)
-    masked_mse = mean_squared_error(y_true, masked_y_pred)
+    # masked_mse = mean_squared_error(y_true, masked_y_pred)
 
+    mse_temp = 0
+    count = 0
 
-    return masked_mse
+    for i in range(len(y_pred)):
+        for j in range(number_of_features):
+            if index_matrix[i][j] == 1:
+                mse_temp += ((y_true[i][j] - masked_y_pred[i][j])**2)
+                count += 1
+
+    masked_mse = mse_temp / count
+
+       
+    return masked_mse.numpy()
 
 
 def calculate_distance_to_baseline(mse_scores, mse_baseline):
@@ -139,7 +149,7 @@ def calculate_distance_to_baseline(mse_scores, mse_baseline):
 def calculate_percentage_of_baseline(mse_scores, mse_baseline):
     percentages = {}
     for key, value in mse_scores.items():
-        percentages[key] = mse_baseline[key] / value
+        percentages[key] = value / mse_baseline[key]
     return percentages
-        
 
+        

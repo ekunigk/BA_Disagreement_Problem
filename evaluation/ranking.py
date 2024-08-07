@@ -70,8 +70,7 @@ def find_best_architecture(mse_dict):
     
     return best_dict
 
-        
 
-
-
-
+def merge_two_dicts(x, y):
+    z = {**x, **y}
+    return z
