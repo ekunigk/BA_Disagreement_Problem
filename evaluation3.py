@@ -1,9 +1,10 @@
-from data.data_collector import DataCollector
-from evaluation.linear_translator import translate_pairwise
+from data_management.data_collector import DataCollector
+from evaluation.linear_translator import translate_pairwise, calculate_percentage_of_baseline
 from evaluation.autoencoder import Autoencoder
 from evaluation.autoencoder_training import translate_with_autoencoder
 from visualization.translator_fig import visualize_multiple_scores, show_rankings, show_rankings_bp
-from evaluation.ranking import merge_rankings, create_rankings, separate_concepts
+from evaluation.ranking import merge_rankings, create_rankings, separate_concepts, merge_two_dicts
+from data_management.data_saving import load_dict, save_dict
 
 import numpy as np
 
@@ -77,7 +78,7 @@ def evaluate_models(explanation_set='breastw', eval=True):
     if eval:
         evaluate_translations(score_dict, labels, title)
 
-    return score_dict
+    return score_dict, mse_baseline_1
 
 
 def evaluate_autoencoder(explanation_set='breastw', model_number=1, layers_encode=[9, 16, 5], layers_decode=[5, 16, 9], num_epochs=10, lr=0.001, batch_size=32, eval=True):
@@ -93,15 +94,16 @@ def evaluate_autoencoder(explanation_set='breastw', model_number=1, layers_encod
     autoencoder = Autoencoder(layers_encode, layers_decode)
     dc = DataCollector(explanation_set, model_number=model_number)
 
-    mse = translate_with_autoencoder(autoencoder, dc.scaled_explanations, dc.non_zero_explanations, num_epochs, lr, batch_size)
+    mse, mse_kfold = translate_with_autoencoder(autoencoder, dc.scaled_explanations, dc.non_zero_explanations, num_epochs, lr, batch_size)
 
     masked_indices, masked_indices_nonzero = dc.mask_features(k=mask_1_3, scaled=True)
-    mse_m = translate_with_autoencoder(autoencoder, dc.masked_explanations, dc.non_zero_masked_explanations, num_epochs, lr, batch_size)
+    mse_m, mse_m_kfold = translate_with_autoencoder(autoencoder, dc.masked_explanations, dc.non_zero_masked_explanations, num_epochs, lr, batch_size, masked=True, masked_indices=masked_indices, non_zero_masked_indices=masked_indices_nonzero)
 
     masked_indices2, masked_indices2_nonzero = dc.mask_features(k=mask_2_3, scaled=True)
-    mse_m2 = translate_with_autoencoder(autoencoder, dc.masked_explanations, dc.non_zero_masked_explanations, num_epochs, lr, batch_size)
+    mse_m2, mse_m2_kfold = translate_with_autoencoder(autoencoder, dc.masked_explanations, dc.non_zero_masked_explanations, num_epochs, lr, batch_size, masked=True, masked_indices=masked_indices2, non_zero_masked_indices=masked_indices2_nonzero)
 
     score_dict = {'autoencoder mse': mse, 'autoencoder mse 6': mse_m, 'autoencoder mse 3': mse_m2}
+    kfold_dict = {'autoencoder mse': mse_kfold, 'autoencoder mse 6': mse_m_kfold, 'autoencoder mse 3': mse_m2_kfold}
     labels = ('autoencoder mse', 'autoencoder mse 6', 'autoencoder mse 3')
 
     title = 'MSE comparison between autoencoders'
@@ -109,7 +111,7 @@ def evaluate_autoencoder(explanation_set='breastw', model_number=1, layers_encod
     if eval:
         evaluate_translations(score_dict, labels, title)
 
-    return score_dict
+    return score_dict, kfold_dict
     
 
 def evaluate_translations(score_dict, labels, title):
@@ -132,14 +134,91 @@ def evaluate_translations(score_dict, labels, title):
 
 
 
+def evaluate_ae_lr_models(explanation_set='breastw', masking=0, show=True):
 
+    if explanation_set=='breastw':
+        path = 'saves/bw/'
+    else:
+        path = 'saves/sb/'
 
+    sb_ae165 = load_dict(path+'score_dict_ae165_20_01_16.pkl')
+    sb_ae165 = {key + ' 165': value for key, value in sb_ae165.items()}
+    sb_ae85 = load_dict(path+'score_dict_ae84_20_01_16.pkl')
+    sb_ae85 = {key + ' 85': value for key, value in sb_ae85.items()}
+    sb_ae165_m2 = load_dict(path+'score_dict_ae165_20_01_16_m2.pkl')
+    sb_ae165_m2 = {key + ' 165 m2': value for key, value in sb_ae165_m2.items()}
+    sb_ae85_m2 = load_dict(path+'score_dict_ae84_20_01_16_m2.pkl')
+    sb_ae85_m2 = {key + ' 85 m2': value for key, value in sb_ae85_m2.items()}
+    sb_ae165_m3 = load_dict(path+'score_dict_ae165_20_01_16_m3.pkl')
+    sb_ae165_m3 = {key + ' 165 m3': value for key, value in sb_ae165_m3.items()}
+    sb_ae85_m3 = load_dict(path+'score_dict_ae84_20_01_16_m3.pkl')
+    sb_ae85_m3 = {key + ' 85 m3': value for key, value in sb_ae85_m3.items()}
 
+    score_dict, baseline = evaluate_models(explanation_set, eval=False)
 
-
-
-
+    complete_1 = merge_two_dicts(sb_ae165, sb_ae85)
+    complete_2 = merge_two_dicts(sb_ae165_m2, sb_ae85_m2)
+    complete_3 = merge_two_dicts(sb_ae165_m3, sb_ae85_m3)
+    c12 = merge_two_dicts(complete_1, complete_2)
+    c123 = merge_two_dicts(c12, complete_3)
+    	
+    if masking==0:
+        mask = {'165 m1': c123['autoencoder mse 165'],
+             '85 m1': c123['autoencoder mse 85'],
+             'lr m1': score_dict['model 1 mse'],
+             '165 m2': c123['autoencoder mse 165 m2'],
+             '85 m2': c123['autoencoder mse 85 m2'],
+             'lr m2': score_dict['model 2 mse'],
+             '165 m3': c123['autoencoder mse 165 m3'],
+             '85 m3': c123['autoencoder mse 85 m3'],
+             'lr m3': score_dict['model 3 mse'],
+             'baseline': baseline}
     
+        labels = ('165 m1', '84 m1', 'lr m1', '165 m2', '84 m2', 'lr m2', '165 m3', '84 m3', 'lr m3', 'baseline')
+    title = 'MSE comparison between autoencoders and linear models'
+
+    if masking==1:
+        mask = {'165 m1': c123['autoencoder mse 6 165'],
+             '85 m1': c123['autoencoder mse 6 85'],
+             'lr m1': score_dict['model 1 mse 6'],
+             '165 m2': c123['autoencoder mse 6 165 m2'],
+             '85 m2': c123['autoencoder mse 6 85 m2'],
+             'lr m2': score_dict['model 2 mse 6'],
+             '165 m3': c123['autoencoder mse 6 165 m3'],
+             '85 m3': c123['autoencoder mse 6 85 m3'],
+             'lr m3': score_dict['model 3 mse 6'],
+             'baseline': baseline}
+
+        labels = ('1/3 165 m1', '1/3 84 m1', '1/3 lr m1', '1/3 165 m2', '1/3 84 m2', '1/3 lr m2', '1/3 165 m3', '1/3 84 m3', '1/3 lr m3', 'baseline')
+
+    if masking==2:
+        mask = {'165 m1': c123['autoencoder mse 3 165'],
+             '85 m1': c123['autoencoder mse 3 85'],
+             'lr m1': score_dict['model 1 mse 3'],
+             '165 m2': c123['autoencoder mse 3 165 m2'],
+             '85 m2': c123['autoencoder mse 3 85 m2'],
+             'lr m2': score_dict['model 2 mse 3'],
+             '165 m3': c123['autoencoder mse 3 165 m3'],
+             '85 m3': c123['autoencoder mse 3 85 m3'],
+             'lr m3': score_dict['model 3 mse 3'],
+             'baseline': baseline}
+
+        labels = ('2/3 165 m1', '2/3 84 m1', '2/3 lr m1', '2/3 165 m2', '2/3 84 m2', '2/3 lr m2', '2/3 165 m3', '2/3 84 m3', '2/3 lr m3', 'baseline')
+    
+    print(baseline)
+
+    percentages_of_b = {}
+    for key in mask:
+        percentages_of_b[key] = calculate_percentage_of_baseline(mask[key], c123['autoencoder mse 165'])
+
+    if show==True:
+        evaluate_translations(mask, labels, title)
+
+        evaluate_translations(percentages_of_b, labels, 'Percentage of baseline comparison between autoencoders and linear models')
+
+    return mask, percentages_of_b
+
+
 
 
 

@@ -1,9 +1,9 @@
 import numpy as np
 import torch 
 
-from data.data_collector import DataCollector
-from data.evaluation_prep import collect_regression_data, prepare_umap_data
-from data.preprocessing import mask_features, scale_data
+from data_management.data_collector import DataCollector
+from data_management.evaluation_prep import collect_regression_data, prepare_umap_data
+from data_management.preprocessing import mask_features, scale_data
 
 from evaluation.preliminary_evaluation import fa_average_pairwise
 from evaluation.structural_regression import pairwise_kfold
