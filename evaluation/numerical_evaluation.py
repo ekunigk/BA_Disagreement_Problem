@@ -1,5 +1,6 @@
 import torch
 import numpy as np
+import matplotlib.pyplot as plt
 
 def count_feature_amount(explanation_set, with_label=True):
     if with_label:
@@ -69,11 +70,14 @@ def do_dimensional_analysis(dc):
     method_size = int(len(dc.scaled_explanations)/5)
     non_zero_method_size = int(len(dc.non_zero_explanations)/5)
 
-    explanation_dict = {'ig': dc.scaled_explanations[:method_size,:-1],
-                        'ks': dc.scaled_explanations[method_size:(2*method_size),:-1],
-                        'li': dc.non_zero_explanations[(2*non_zero_method_size):(3*non_zero_method_size), :-1],
-                        'sg': dc.scaled_explanations[(3*method_size):(4*method_size), :-1],
-                        'vg': dc.scaled_explanations[(4*method_size):, :-1]}
+    color_dict = {'IG': '#eda6c4', 'KS': '#5fa777', 'LI': '#164f7f', 'SG': '#78184a', 'VG': '#008080'}
+    # '#eda6c4', '#5fa777', '#164f7f', '#78184a', '#008080'
+
+    explanation_dict = {'IG': dc.scaled_explanations[:method_size,:-1],
+                        'KS': dc.scaled_explanations[method_size:(2*method_size),:-1],
+                        'LI': dc.non_zero_explanations[(2*non_zero_method_size):(3*non_zero_method_size), :-1],
+                        'SG': dc.scaled_explanations[(3*method_size):(4*method_size), :-1],
+                        'VG': dc.scaled_explanations[(4*method_size):, :-1]}
     
     dimensional_variance = torch.zeros((5, number_of_features))
     dimensional_mean = torch.zeros((5, number_of_features))
@@ -89,7 +93,7 @@ def do_dimensional_analysis(dc):
 
 
     for i, key in enumerate(explanation_dict):
-        if key == 'li':
+        if key == 'LI':
             method_size_new = non_zero_method_size
         else:
             method_size_new = method_size
@@ -99,6 +103,8 @@ def do_dimensional_analysis(dc):
             values, top_feat_temp = torch.topk(explanation_dict[key][j], 2, largest=True)
             for k in top_feat_temp:
                 top_features[i][top_feat_temp] += 1
+            
+        show_distribution_per_method(explanation_dict[key], method=key, color=color_dict[key], figsize=((6, 4)))
 
     explanation_variance_per_method = torch.mean(explanation_variance, dim=0)
 
@@ -106,6 +112,38 @@ def do_dimensional_analysis(dc):
     return dimensional_variance, dimensional_mean, explanation_variance, explanation_mean, explanation_variance_per_method, top_features
 
 
+
+def show_distribution_per_method(explanation, method, color='blue', bin_size=0.2, range_min=-1, range_max=1, figsize=(10,6)):
+    # Flatten the 2D tensor to a 1D array for histogram calculation
+    flattened_array = explanation.flatten()
+
+    # Create bins from range_min to range_max with the given bin size
+    bins = np.arange(range_min, range_max + bin_size, bin_size)
+
+    # Plotting the histogram
+    plt.figure(figsize=figsize)
+    plt.hist(flattened_array, bins=bins, color=color, edgecolor='black', alpha=0.7)
+
+    plt.xticks([])
+    plt.yticks([])
+
+    # Optionally, you can also remove the frame for a cleaner look
+    plt.gca().spines['top'].set_visible(False)
+    plt.gca().spines['right'].set_visible(False)
+    plt.gca().spines['left'].set_visible(False)
+    plt.gca().spines['bottom'].set_visible(False)
+
+    # Customizing the plot
+    plt.xlabel('Attribution Value')
+    plt.ylabel('Frequency')
+    title = 'Histogram of Values in Explanation for ' + method
+    plt.title(title)
+    # plt.xticks(bins)
+
+    # Save the plot as a vector graphic
+    # plt.savefig('histogram.svg', format='svg')  # You can also use 'pdf' or other vector formats
+
+    plt.show()
 
 
 

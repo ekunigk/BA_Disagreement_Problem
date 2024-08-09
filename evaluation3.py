@@ -78,7 +78,7 @@ def evaluate_models(explanation_set='breastw', eval=True):
     if eval:
         evaluate_translations(score_dict, labels, title)
 
-    return score_dict, mse_baseline_3, mse_baseline_m3, mse_baseline_m32
+    return score_dict, mse_baseline_1, mse_baseline_m1, mse_baseline_m12
 
 
 def evaluate_autoencoder(explanation_set='breastw', model_number=1, layers_encode=[9, 16, 5], layers_decode=[5, 16, 9], num_epochs=10, lr=0.001, batch_size=32, eval=True):

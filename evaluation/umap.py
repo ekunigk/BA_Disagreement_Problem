@@ -28,7 +28,7 @@ def visualize_umap_nolegend(dataset, embedding, scale=False):
     plt.scatter(
         embedding[:, 0],
         embedding[:, 1],
-        c=[sns.color_palette()[x] for x in dataset[:, -1].numpy().astype(int)]
+        c=[sns.color_palette("ch:s=.25,rot=-.25", as_cmap=True)[x] for x in dataset[:, -1].numpy().astype(int)]
     )
     plt.gca().set_aspect('equal', 'datalim')
     plt.title('UMAP projection of the dataset', fontsize=24)
@@ -57,13 +57,15 @@ def visualize_umap(embedding, method_length, non_zero_method_length):
 
     length = int(len(embedding) / 5)
 
-    colors = ['blue', 'orange', 'green', 'red', 'purple']
+    colors = ['#eda6c4', '#5fa777', '#164f7f', '#78184a', '#008080']  # 0b0b45 004aad
 
-    ig = plt.scatter(embedding[0:method_length, 0], embedding[0:method_length, 1], color=colors[0], linewidths=0.8, edgecolors='w', alpha=0.9)
-    ks = plt.scatter(embedding[method_length:(2*method_length), 0], embedding[method_length:(2*method_length), 1], color=colors[1], linewidths=0.8, edgecolors='w', alpha=0.9)
-    li = plt.scatter(embedding[(2*method_length):(2*method_length+non_zero_method_length), 0], embedding[(2*method_length):(2*method_length+non_zero_method_length), 1], color=colors[2], linewidths=0.8, edgecolors='w', alpha=0.9)
-    sg = plt.scatter(embedding[(2*method_length+non_zero_method_length):(3*method_length+non_zero_method_length), 0], embedding[(2*method_length+non_zero_method_length):(3*method_length+non_zero_method_length), 1], color=colors[3], linewidths=0.8, edgecolors='w', alpha=0.9)
-    vg = plt.scatter(embedding[(3*method_length+non_zero_method_length):, 0], embedding[(3*method_length+non_zero_method_length):, 1], color=colors[4], linewidths=0.8, edgecolors='w', alpha=0.9)
+    ig = plt.scatter(embedding[0:method_length, 0], embedding[0:method_length, 1], color=colors[0], alpha=1)
+    ks = plt.scatter(embedding[method_length:(2*method_length), 0], embedding[method_length:(2*method_length), 1], color=colors[1], alpha=1)
+    li = plt.scatter(embedding[(2*method_length):(2*method_length+non_zero_method_length), 0], embedding[(2*method_length):(2*method_length+non_zero_method_length), 1], color=colors[2], alpha=1)
+    sg = plt.scatter(embedding[(2*method_length+non_zero_method_length):(3*method_length+non_zero_method_length), 0], embedding[(2*method_length+non_zero_method_length):(3*method_length+non_zero_method_length), 1], color=colors[3], alpha=1)
+    vg = plt.scatter(embedding[(3*method_length+non_zero_method_length):, 0], embedding[(3*method_length+non_zero_method_length):, 1], color=colors[4], alpha=1)
+
+    # ks = plt.scatter(embedding[method_length:(2*method_length), 0], embedding[method_length:(2*method_length), 1], color=colors[1], linewidths=0.8, edgecolors='w', alpha=1)
 
     plt.legend((ig, ks, li, sg, vg),
                ('ig', 'ks', 'li', 'sg', 'vg'),

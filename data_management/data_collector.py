@@ -16,6 +16,7 @@ class DataCollector():
         self.scaled_explanations = self.scale_data(with_label=True, model_number=model_number)
         self.masked_explanations = self.collect_all_methods(model_number=model_number)
         self.explanation_method_length = int(len(self.explanations_all) / 5)
+        self.zero_indices = []
         self.non_zero_explanations = self.create_non_zero_dataset()
         self.non_zero_masked_explanations = self.non_zero_explanations.clone()
         
@@ -240,6 +241,7 @@ class DataCollector():
 
     def create_non_zero_dataset(self):
         index_list = self.find_lime_zero_explanations()
+        self.zero_indices[:] = index_list[:]
         explanation_length = self.explanation_method_length
         lime_explanation_set = self.scaled_explanations.clone()
         remaining_indices = [i for i in range(explanation_length) if i not in index_list]

@@ -132,7 +132,7 @@ def show_three_bp(df):
     #     ])
     # }
 
-def show_three(df, figsize=(15, 8), base_spacing=3):
+def show_three(df, figsize=(15, 8), base_spacing=3, ranking=True, ylabel='Ranking among Methods', title='Ranking of Method Pairs based on Translation MSE'):
 
     # Configure Matplotlib to use LaTeX
     
@@ -168,9 +168,10 @@ def show_three(df, figsize=(15, 8), base_spacing=3):
     ax.set_xticks([i * base_spacing + spacing_within_row for i in range(len(df))])
     ax.set_xticklabels(df.index)
     ax.set_xlabel('Method Pair')
-    ax.set_ylim([0, 21])
-    ax.set_ylabel('Ranking among Methods')
-    ax.set_title('Ranking of Method Pairs based on Translation MSE')
+    if ranking:
+        ax.set_ylim([0, 21])
+    ax.set_ylabel(ylabel)
+    ax.set_title(title)
     # ax.grid(True)
 
     # Adding legend manually
@@ -192,9 +193,14 @@ def represent_values(df, baseline):
     fig, ax = plt.subplots(figsize=(15, 8))
 
     # Colors for the scatter points
-    colors = ['#04d8b2','#7bc8f6', '#c79fef']
+    colors = ['#3CB371','#6CA6CD', '#9F79EE']
 
     offsets = [-0.2, 0, 0.2]
+
+    b_keys = list(baseline.keys())
+    b1 = baseline[b_keys[0]]
+    b2 = baseline[b_keys[1]]
+    b3 = baseline[b_keys[2]]
 
     row_count = 0
     # Iterate through each row to create scatter plots
@@ -202,8 +208,11 @@ def represent_values(df, baseline):
         # Scatter the points for each column
         for i, col in enumerate(df.columns):
             ax.scatter([row_count + offsets[i]] * 10, row[col], color=colors[i], label=col if row_count == 0 else "", alpha=0.7)
-
-        ax.hlines(y=baseline[idx], xmin=row_count + offsets[0], xmax=row_count + offsets[2], colors='black', linestyles='--', linewidth=2)
+        
+        # ax.hlines(y=baseline[idx], xmin=row_count + offsets[0], xmax=row_count + offsets[2], colors='black', linestyles='--', linewidth=2)
+        ax.hlines(y=b1[idx], xmin=row_count -0.3, xmax=row_count -0.1, color='black')
+        ax.hlines(y=b2[idx], xmin=row_count -0.1, xmax=row_count +0.1, color='black')
+        ax.hlines(y=b3[idx], xmin=row_count +0.1, xmax=row_count +0.3, color='black')
         row_count += 1
 
     # Customizing the plot
@@ -217,7 +226,7 @@ def represent_values(df, baseline):
     all_values = np.concatenate(df.values.flatten())
     ax.set_ylim([all_values.min() - 0.02, all_values.max() + 0.05])
 
-    baseline_legend = Line2D([0], [0], color='black', linestyle='--', linewidth=1, label='Baseline')
+    baseline_legend = Line2D([0], [0], color='black', linestyle='-', linewidth=1, label='Baseline')
 
     # Add the legend to the plot
     ax.legend(handles=ax.get_legend_handles_labels()[0] + [baseline_legend])

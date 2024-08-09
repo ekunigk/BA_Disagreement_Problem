@@ -3,11 +3,11 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
 
-def visualize_fa(fa_matrix, title='Pairwise Feature Agreement'):
+def visualize_fa(fa_matrix, title='Pairwise Feature Agreement', figsize=(10,10)):
+    plt.figure(figsize=figsize)
     df = pd.DataFrame(fa_matrix)
-    df.columns = ['ig', 'ks', 'li', 'sg', 'vg']
-    df.index = ['ig', 'ks', 'li', 'sg', 'vg']
-    print(df)
+    df.columns = ['IG', 'KS', 'LI', 'SG', 'VG']
+    df.index = ['IG', 'KS', 'LI', 'SG', 'VG']
     sns.heatmap(df, annot=True, xticklabels=True, yticklabels=True, cmap='crest')
     plt.title(title)
     plt.show()

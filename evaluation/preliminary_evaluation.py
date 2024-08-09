@@ -18,11 +18,15 @@ def euclidean(ex_1, ex_2):
     return torch.cdist(ex_1, ex_2, p=2)
 
 
-def fa_pairwise(explanations, k):
+def fa_pairwise(explanations, k, lime_zero=False):
+    # lime_zero = False
     fa_matrix = np.zeros((len(explanations), len(explanations)))
     for i in range(len(explanations)):
         for j in range(i+1, len(explanations)):
-            fa_matrix[i, j] = feature_agreement(explanations[i], explanations[j], k)
+            if lime_zero and (i ==2 or j == 2):
+                fa_matrix[i, j] = 0
+            else: 
+                fa_matrix[i, j] = feature_agreement(explanations[i], explanations[j], k)
             fa_matrix[j, i] = fa_matrix[i, j]
         fa_matrix[i, i] = 1
     return fa_matrix
@@ -50,8 +54,9 @@ def fa_average_pairwise2(dc, n, k, model_number=1):
     return fa_matrix 
 
 
-def fa_average_pairwise(dc, n, k, model_number=1):
+def fa_average_pairwise(dc, k):
     explanation_set = dc.scaled_explanations
+    zero_indices = dc.zero_indices
     size = int(len(explanation_set)/5)
     feature_amount = len(explanation_set[0]) -1
 
@@ -62,9 +67,19 @@ def fa_average_pairwise(dc, n, k, model_number=1):
         for j in range(5):
             explanations = np.vstack((explanations, explanation_set[j*size+i, :-1]))
         explanation_fa = torch.tensor(explanations[1:])
-        fa_matrix = fa_matrix + fa_pairwise(explanation_fa, k)
-    fa_matrix = fa_matrix / size
-
+        if i in zero_indices:
+            lime_zero = True 
+        else:
+            lime_zero = False
+        fa_matrix = fa_matrix + fa_pairwise(explanation_fa, k, lime_zero=lime_zero)
+    for m in range(5):
+        for n in range(5):
+            if (m == 2 or n == 2) and m != n:
+                divider = size - len(zero_indices)
+            else:
+                divider = size
+            fa_matrix[m, n] = fa_matrix[m, n] / divider
+  
     return fa_matrix
 
 
