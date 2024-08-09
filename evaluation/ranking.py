@@ -39,15 +39,18 @@ def create_rankings_kfold(dict_scores):
 
 
 def normalize_df(df, baseline):
+    # print(df.head())
     for col in df.columns:
         for idx in df.index:
             df[col][idx] = df[col][idx] / baseline[col][idx]
+
+    return df
 
 
 def rank_entries(df, baseline=0):
 
     if baseline != 0:
-        normalize_df(df, baseline)
+        df[:] = normalize_df(df, baseline)
 
     ranks_array = np.zeros((20, 3, 10))
     
