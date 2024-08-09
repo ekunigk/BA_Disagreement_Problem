@@ -13,8 +13,8 @@ class DataCollector():
         self.explanation_set_name = explanation_set
         self.explanation_set = self.collect_data(explanation_set)
         self.explanations_all = self.collect_all_methods(model_number=model_number)
-        self.scaled_explanations = self.scale_data(with_label=True)
-        self.masked_explanations = self.collect_all_methods()
+        self.scaled_explanations = self.scale_data(with_label=True, model_number=model_number)
+        self.masked_explanations = self.collect_all_methods(model_number=model_number)
         self.explanation_method_length = int(len(self.explanations_all) / 5)
         self.non_zero_explanations = self.create_non_zero_dataset()
         self.non_zero_masked_explanations = self.non_zero_explanations.clone()
@@ -25,7 +25,7 @@ class DataCollector():
         if dataset_name not in ['breastw', 'btsc', 'spambase', 'spf']:
             raise ValueError('Invalid dataset name')
 
-        path = path = f'data/explanation_sets/{dataset_name}/explanations/'
+        path = path = f'data_management/explanation_sets/{dataset_name}/explanations/'
 
         files = [f for f in listdir(path) if isfile(join(path, f))]
         explanation_data = {}
@@ -54,13 +54,13 @@ class DataCollector():
 
     def collect_meta_data(self):
         if self.explanation_set_name == 'breastw':
-            path = 'data/explanation_sets/breastw/meta_data_pid2956_breastw_11880.pkl'
+            path = 'data_management/explanation_sets/breastw/meta_data_pid2956_breastw_11880.pkl'
         elif self.explanation_set_name == 'btsc':
-            path = 'data/explanation_sets/btsc/meta_data_pid2955_btsc_11880.pkl'
+            path = 'data_management/explanation_sets/btsc/meta_data_pid2955_btsc_11880.pkl'
         elif self.explanation_set_name == 'spambase':
-            path = 'data/explanation_sets/spambase/meta_data_pid2957_spambase_11880.pkl'
+            path = 'data_management/explanation_sets/spambase/meta_data_pid2957_spambase_11880.pkl'
         elif self.explanation_set_name == 'spf':
-            path = 'data/explanation_sets/spf/meta_data_pid2954_spf_11880.pkl'
+            path = 'data_management/explanation_sets/spf/meta_data_pid2954_spf_11880.pkl'
         else:
             raise ValueError('Invalid dataset name')    
 
@@ -140,7 +140,7 @@ class DataCollector():
         if self.explanation_set_name not in ['breastw', 'btsc', 'spambase', 'spf']:
             raise ValueError('Invalid dataset name')
         
-        path = path = f'data/explanation_sets/{self.explanation_set_name}/explanations/'
+        path = path = f'data_management/explanation_sets/{self.explanation_set_name}/explanations/'
 
         files = [f for f in listdir(path) if isfile(join(path, f))]
         pgi_data = {}
@@ -160,7 +160,7 @@ class DataCollector():
         if self.explanation_set_name not in ['breastw', 'btsc', 'spambase', 'spf']:
             raise ValueError('Invalid dataset name')
         
-        path = path = f'data/explanation_sets/{self.explanation_set_name}/explanations/'
+        path = path = f'data_management/explanation_sets/{self.explanation_set_name}/explanations/'
 
         files = [f for f in listdir(path) if isfile(join(path, f))]
         explanations = {}
@@ -187,7 +187,7 @@ class DataCollector():
         return scaled_data
     
 
-    def mask_features(self, k=3, mask=0, scaled=False):
+    def mask_features(self, k=3, mask=0, scaled=True):
         
         number_of_features = len(self.explanations_all[0])-1
 
@@ -227,7 +227,7 @@ class DataCollector():
         explanation_length = self.explanation_method_length
         index_list = []
         explanation_count = 0
-        for explanation in self.explanations_all[2*explanation_length:3*explanation_length, :-1]:
+        for explanation in self.scaled_explanations[2*explanation_length:3*explanation_length, :-1]:
             non_zero_features = 0
             for i in range(len(explanation)):
                 if explanation[i] != 0:
