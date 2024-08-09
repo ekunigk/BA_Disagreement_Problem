@@ -1,5 +1,6 @@
 import numpy as np
 import torch
+import pandas as pd
 
 
 def create_rankings(dict_scores):
@@ -20,6 +21,7 @@ def merge_rankings(dict_of_dicts):
     ranking_dict = {}
     
     for key in list(dict_of_dicts.keys()):
+        print(key)
         ranking_dict[key] = create_rankings(dict_of_dicts[key])
 
     merged_dict = {}
@@ -27,6 +29,65 @@ def merge_rankings(dict_of_dicts):
         merged_dict[key] = [ranking_dict[dict_key][key] for dict_key in ranking_dict.keys()]
 
     return merged_dict
+
+def create_rankings_kfold(dict_scores):
+    rankings = {}
+    for i in range(10):
+        scores_sorted = {k : v for k, v in sorted(dict_scores[i].items(), key=lambda item: item[1]) }
+        rankings[i] = {k : i+1 for i, k in enumerate(scores_sorted.keys())}
+    return rankings
+
+
+def normalize_df(df, baseline):
+    for col in df.columns:
+        for idx in df.index:
+            df[col][idx] = df[col][idx] / baseline[col][idx]
+
+
+def rank_entries(df, baseline=0):
+
+    if baseline != 0:
+        normalize_df(df, baseline)
+
+    ranks_array = np.zeros((20, 3, 10))
+    
+    for col_idx, col in enumerate(df.columns):
+
+        col_data = np.array(df[col].tolist())
+
+        ranks = np.argsort(np.argsort(col_data, axis=0), axis=0) + 1  
+
+        ranks_array[:, col_idx, :] = ranks
+
+    rank_df = pd.DataFrame([list(row) for row in ranks_array], columns=df.columns, index=df.index)
+    
+    return rank_df
+
+
+def separate_concepts_df(merged_df):
+
+    grad_pairs = ['IG_VG', 'IG_SG', 'SG_VG', 'SG_IG', 'VG_IG', 'VG_SG']
+    perturb_pairs = ['KS_LI', 'LI_KS']
+    mixed_pairs = ['IG_KS', 'IG_LI', 'KS_IG', 'KS_VG', 'LI_IG', 'LI_SG', 'SG_LI', 'SG_KS', 'VG_KS', 'VG_LI']
+
+    grad_df = pd.DataFrame(index=grad_pairs, columns=merged_df.columns)
+    perturb_df = pd.DataFrame(index=perturb_pairs, columns=merged_df.columns)
+    mixed_df = pd.DataFrame(index=mixed_pairs, columns=merged_df.columns)
+
+    for idx in merged_df.index:
+        if idx in grad_pairs:
+            grad_df[idx] = merged_df.loc[idx]
+        elif idx in perturb_pairs:
+            perturb_df[idx] = merged_df.loc[idx]
+        else:
+            mixed_df[idx] = merged_df.loc[idx]
+
+    # grad_df = merged_df.loc(grad_pairs)
+    # perturb_df = merged_df.loc(perturb_pairs)
+    # mixed_df = merged_df.drop(grad_pairs + perturb_pairs, axis=1)
+
+    return grad_df, perturb_df, mixed_df
+
 
 
 def separate_concepts(merged_dict):
@@ -46,6 +107,17 @@ def separate_concepts(merged_dict):
 
     return grad_dict, perturb_dict, mixed_dict
 
+def separate_kfold(merged_dict):
+    grad_dict = {}
+    perturb_dict = {}
+    mixed_dict = {}
+    for key in merged_dict.keys():
+        grad, perturb, mixed = separate_concepts(merged_dict[key])
+        grad_dict[key] = grad
+        perturb_dict[key] = perturb
+        mixed_dict[key] = mixed
+
+    return grad_dict, perturb_dict, mixed_dict
 
 def sum_mses(mse_dict):
     sum_dict = {}
