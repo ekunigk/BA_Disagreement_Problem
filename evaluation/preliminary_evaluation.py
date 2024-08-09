@@ -28,7 +28,7 @@ def fa_pairwise(explanations, k):
     return fa_matrix
     
 
-def fa_average_pairwise(dc, n, k, model_number=1):
+def fa_average_pairwise2(dc, n, k, model_number=1):
     keys = dc.get_keys(model_number)
     explanation_set = dc.explanation_set
     size = len(explanation_set[keys[0]])
@@ -38,6 +38,7 @@ def fa_average_pairwise(dc, n, k, model_number=1):
     fa_matrix = np.zeros((len(keys), len(keys)))
 
     indices = np.random.randint(0, size, size=n)
+    
     for i in indices:
         explanations = np.ones((1, feature_amount))
         for key in keys:
@@ -47,6 +48,24 @@ def fa_average_pairwise(dc, n, k, model_number=1):
     fa_matrix = fa_matrix / n 
 
     return fa_matrix 
+
+
+def fa_average_pairwise(dc, n, k, model_number=1):
+    explanation_set = dc.scaled_explanations
+    size = int(len(explanation_set)/5)
+    feature_amount = len(explanation_set[0]) -1
+
+    fa_matrix = np.zeros((5, 5))
+
+    for i in range(size):
+        explanations = np.ones((1, feature_amount))
+        for j in range(5):
+            explanations = np.vstack((explanations, explanation_set[j*size+i, :-1]))
+        explanation_fa = torch.tensor(explanations[1:])
+        fa_matrix = fa_matrix + fa_pairwise(explanation_fa, k)
+    fa_matrix = fa_matrix / size
+
+    return fa_matrix
 
 
 def fa_difference(explanation_set, keys, n, start=0, stop=4, steps=1, random_comparison=False):
