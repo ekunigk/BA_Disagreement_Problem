@@ -52,7 +52,10 @@ def translate_pairwise(explanation_set, non_zero_explanation_set, pred=True, kfo
                     variance = 0
                 r2[number_method[i] + '_' + number_method[j]] = r2_score
                 mse[number_method[i] + '_' + number_method[j]] = mse_score
-                mean_mse[number_method[i] + '_' + number_method[j]] = compare_to_mean_baseline(explanation2)
+                if masked: 
+                    mean_mse[number_method[i] + '_' + number_method[j]] = compare_to_mean_masked(explanation2, ex_masked_indices)
+                else:
+                    mean_mse[number_method[i] + '_' + number_method[j]] = compare_to_mean_baseline(explanation2)
                 variances[number_method[i] + '_' + number_method[j]] = variance
     return r2, mse, mean_mse, variances
 
@@ -97,6 +100,17 @@ def compare_to_mean_baseline(explanation2):
     mean_array[:,:] = mean
     mean_mse = mean_squared_error(explanation2, mean_array)
     return mean_mse
+
+
+def compare_to_mean_masked(explanation2, masked_indices):
+    expl = explanation2.clone().numpy()
+    expl[expl == 0] = np.nan
+    mean = np.nanmean(expl, axis=0)
+    mean = np.nan_to_num(mean)
+    mean_array = np.zeros(explanation2.shape)
+    mean_array[:,:] = mean
+    means_mse = calculate_masked_mse(masked_indices, mean_array, explanation2.numpy())
+    return means_mse
  
 
 def analyze_residuals(y_test, y_pred):
@@ -136,7 +150,7 @@ def calculate_masked_mse(masked_indices, y_pred, y_true):
     masked_mse = mse_temp / count
 
        
-    return masked_mse.numpy()
+    return masked_mse
 
 
 def calculate_distance_to_baseline(mse_scores, mse_baseline):

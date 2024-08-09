@@ -7,7 +7,7 @@ from sklearn.metrics import mean_squared_error
 from evaluation.autoencoder import Autoencoder
 import matplotlib.pyplot as plt
 
-from evaluation.linear_translator import calculate_masked_mse
+from evaluation.linear_translator import calculate_masked_mse, compare_to_mean_masked
 
 
 def train_autoencoder(autoencoder, explanation1, explanation2, num_epochs=10, lr=0.001, batch_size=32):
@@ -115,6 +115,7 @@ def translate_with_autoencoder(autoencoder, explanation_set, non_zero_explanatio
                     X_train = torch.index_select(explanation1, 0, torch.tensor(train_idx))
                     X_test = torch.index_select(explanation1, 0, torch.tensor(test_idx))
                     y_train, y_test = explanation2[train_idx], explanation2[test_idx]
+                    # print(X_train.shape, X_test.shape, y_train.shape, y_test.shape)
                 
                     train_autoencoder(autoencoder, X_train, y_train, num_epochs, lr, batch_size)
                     autoencoder.eval()
