@@ -1,5 +1,6 @@
 import seaborn as sns
 import numpy as np
+from matplotlib.lines import Line2D
 import matplotlib.pyplot as plt
 import matplotlib as mpl
 # mpl.rcParams.update(mpl.rcParamsDefault)
@@ -108,10 +109,10 @@ def show_three_bp(df):
     plt.show()
 
 
-def show_three(df):
+# plt_default_backend = plt.get_backend()
+# plt_default_params = plt.rcParams
 
-    # Configure Matplotlib to use LaTeX
-    # pgf_with_latex = {
+# pgf_with_latex = {
     #     "pgf.texsystem": "lualatex",
     #     "text.usetex": True,
     #     "font.family": "serif",
@@ -131,17 +132,22 @@ def show_three(df):
     #     ])
     # }
 
+def show_three(df, figsize=(15, 8), base_spacing=3):
+
+    # Configure Matplotlib to use LaTeX
+    
+
     # plt.rcParams.update(pgf_with_latex)
 
     # Plotting
-    fig, ax = plt.subplots(figsize=(15, 8))
+    fig, ax = plt.subplots(figsize=figsize)
 
     # Decreased spacing for boxplots within the same row
-    spacing_within_row = 0.8
-    base_spacing = 3
+    spacing_within_row = 0.5
+    base_spacing = base_spacing
 
     # Colors for the boxplots
-    colors = ['#1f77b4', '#ff7f0e', '#2ca02c']
+    colors = ['#3CB371','#6CA6CD', '#9F79EE']
 
     # Iterate through each row to create boxplots
     row_count = 0
@@ -151,25 +157,117 @@ def show_three(df):
         row_count += 1
         
         # Create boxplots with colors
-        bplots = ax.boxplot(box_data, positions=positions, widths=0.6, patch_artist=True)
+        bplots = ax.boxplot(box_data, positions=positions, widths=0.5, patch_artist=True)
         
         for patch, color in zip(bplots['boxes'], colors):
             patch.set_facecolor(color)
 
+        # ax.plot(positions, [baseline] * len(positions), 'k--', linewidth=1)
+
     # Customizing the plot
     ax.set_xticks([i * base_spacing + spacing_within_row for i in range(len(df))])
     ax.set_xticklabels(df.index)
-    ax.set_xlabel('Row Index')
-    ax.set_ylabel('Value Ranges')
-    ax.set_title('Boxplots of MSE Values per Row')
-    ax.grid(True)
+    ax.set_xlabel('Method Pair')
+    ax.set_ylim([0, 21])
+    ax.set_ylabel('Ranking among Methods')
+    ax.set_title('Ranking of Method Pairs based on Translation MSE')
+    # ax.grid(True)
 
     # Adding legend manually
     for color, col in zip(colors, df.columns):
         ax.plot([], [], label=col, color=color)
     ax.legend()
 
+    # plt.switch_backend('pgf')
+    # plt.rcParams.update(pgf_with_latex)
+    # plt.savefig("boxplot_h1.png", format="png")  
+    # plt.switch_backend(plt_default_backend)
+    # plt.rcParams.update(plt_default_params)
+
+    plt.show()
+
+
+def represent_values(df, baseline):
+
+    fig, ax = plt.subplots(figsize=(15, 8))
+
+    # Colors for the scatter points
+    colors = ['#04d8b2','#7bc8f6', '#c79fef']
+
+    offsets = [-0.2, 0, 0.2]
+
+    row_count = 0
+    # Iterate through each row to create scatter plots
+    for idx, row in df.iterrows():
+        # Scatter the points for each column
+        for i, col in enumerate(df.columns):
+            ax.scatter([row_count + offsets[i]] * 10, row[col], color=colors[i], label=col if row_count == 0 else "", alpha=0.7)
+
+        ax.hlines(y=baseline[idx], xmin=row_count + offsets[0], xmax=row_count + offsets[2], colors='black', linestyles='--', linewidth=2)
+        row_count += 1
+
+    # Customizing the plot
+    ax.set_xticks(range(len(df)))
+    ax.set_xticklabels(df.index)
+    ax.set_xlabel('Method Pair')
+    ax.set_ylabel('Translation MSE')
+    ax.set_title('Translation MSE of Pairs of Attribution Methods')
+
+    # Set the y-axis to display a range based on the data
+    all_values = np.concatenate(df.values.flatten())
+    ax.set_ylim([all_values.min() - 0.02, all_values.max() + 0.05])
+
+    baseline_legend = Line2D([0], [0], color='black', linestyle='--', linewidth=1, label='Baseline')
+
+    # Add the legend to the plot
+    ax.legend(handles=ax.get_legend_handles_labels()[0] + [baseline_legend])
+
     # Save the plot as a vector graphic
-    # plt.savefig('boxplots.svg', format='svg')  # You can also use 'pdf' or other vector formats
+    # plt.savefig('scatter_plot.svg', format='svg')  # You can also use 'pdf' or other vector formats
+
+    plt.show()
+
+
+def plot_boxplots(df, figsize=(15, 8)):
+    fig, ax = plt.subplots(figsize=figsize)
+
+    # Positions for the boxplots
+    positions = np.arange(len(df))
+
+    # Width of each box, set to a fixed small value
+    box_width = 0.2
+
+    # Plotting the boxplots
+    row_count = 0
+    for i, col in enumerate(df.columns):
+        box = ax.boxplot(
+            df[col].values.tolist(),
+            positions=positions + row_count * box_width - box_width,
+            widths=box_width,
+            patch_artist=True,
+            boxprops=dict(facecolor=f'C{row_count}', color='black'),
+            medianprops=dict(color='black'),
+            whiskerprops=dict(color='black'),
+            capprops=dict(color='black'),
+            flierprops=dict(markerfacecolor=f'C{row_count}', markeredgecolor='black', marker='o')
+        )
+        row_count += 1
+
+    # Customizing the plot
+    ax.set_xticks(positions)
+    ax.set_xticklabels(df.index)
+    ax.set_xlabel('Row Index')
+    ax.set_ylabel('Values')
+    ax.set_title('Boxplots of Values')
+
+    # Set the y-axis to show the full range from 1 to 20
+    ax.set_ylim([1, 20])
+
+    # Adding legend manually
+    handles = [plt.Line2D([0], [0], color=f'C{i}', lw=2, label=col) for i, col in enumerate(df.columns)]
+    ax.legend(handles=handles)
+
+    # Save the plot as a vector graphic
+    # plt.savefig('boxplot_with_adjustable_size.svg', format='svg')  # You can also use 'pdf' or other vector formats
 
     plt.show()

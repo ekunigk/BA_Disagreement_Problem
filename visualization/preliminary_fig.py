@@ -7,6 +7,7 @@ def visualize_fa(fa_matrix, title='Pairwise Feature Agreement'):
     df = pd.DataFrame(fa_matrix)
     df.columns = ['ig', 'ks', 'li', 'sg', 'vg']
     df.index = ['ig', 'ks', 'li', 'sg', 'vg']
+    print(df)
     sns.heatmap(df, annot=True, xticklabels=True, yticklabels=True, cmap='crest')
     plt.title(title)
     plt.show()
