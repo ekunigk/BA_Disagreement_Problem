@@ -1,6 +1,7 @@
 import torch
 import numpy as np
 import matplotlib.pyplot as plt
+import pandas as pd
 
 def count_feature_amount(explanation_set, with_label=True):
     if with_label:
@@ -100,16 +101,17 @@ def do_dimensional_analysis(dc):
         for j in range(method_size_new):
             explanation_variance[j, i] = torch.var(explanation_dict[key][j])
             explanation_mean[j, i] = torch.mean(explanation_dict[key][j])
-            values, top_feat_temp = torch.topk(explanation_dict[key][j], 2, largest=True)
-            for k in top_feat_temp:
-                top_features[i][top_feat_temp] += 1
+            values, top_feat_temp = torch.topk(explanation_dict[key][j], 1, largest=True)
             
-        show_distribution_per_method(explanation_dict[key], method=key, color=color_dict[key], figsize=((6, 4)))
+            # for k in top_feat_temp:
+            top_features[i][top_feat_temp] += 1
+            
+        show_distribution_per_method(explanation_dict[key], method=key, color=color_dict[key], figsize=((5, 3)))
 
     explanation_variance_per_method = torch.mean(explanation_variance, dim=0)
 
 
-    return dimensional_variance, dimensional_mean, explanation_variance, explanation_mean, explanation_variance_per_method, top_features
+    return dimensional_variance, dimensional_mean, explanation_variance, explanation_mean, explanation_variance_per_method, pd.DataFrame(top_features.T)
 
 
 
@@ -136,14 +138,51 @@ def show_distribution_per_method(explanation, method, color='blue', bin_size=0.2
     # Customizing the plot
     plt.xlabel('Attribution Value')
     plt.ylabel('Frequency')
-    title = 'Histogram of Values in Explanation for ' + method
+    title = 'Histogram of Values in Explanations by ' + method
     plt.title(title)
     # plt.xticks(bins)
+    # plt.yticks()
 
     # Save the plot as a vector graphic
     # plt.savefig('histogram.svg', format='svg')  # You can also use 'pdf' or other vector formats
 
     plt.show()
+
+
+def sum_differences_of_variance(dim_var):
+    methods = {0:'IG', 1: 'KS', 2:'LI', 3:'SG', 4:'VG'}
+    differences = {}
+    for i in range(5):
+        for j in range(i+1, 5):
+            differences[methods[i]+'_'+methods[j]] = dim_var[i] - dim_var[j]
+
+    # print(differences)
+    for key in differences.keys():
+        print(f'{key}: {sum(abs(differences[key]))}')
+
+    return differences
+
+
+def sum_differences_per_explanation(dc):
+    methods = {0:'IG', 1: 'KS', 2:'LI', 3:'SG', 4:'VG'}
+    differences = {}
+
+    method_length = int(len(dc.scaled_explanations)/5)
+    non_zero_method_length = int(len(dc.non_zero_explanations)/5)
+
+    for i in range(5):
+        for j in range(i+1, 5):
+            sum_temp = 0
+            if i == 2 or j == 2:
+                for m in range(non_zero_method_length):
+                    sum_temp += sum(abs(dc.non_zero_explanations[i*non_zero_method_length+m] - dc.non_zero_explanations[j*non_zero_method_length+m]))
+                differences[methods[i]+'_'+methods[j]] = sum_temp / non_zero_method_length
+            else:
+                for m in range(method_length):
+                    sum_temp += sum(abs(dc.scaled_explanations[i*method_length+m] - dc.scaled_explanations[j*method_length+m]))
+                differences[methods[i]+'_'+methods[j]] = sum_temp / method_length
+    
+    return differences
 
 
 
