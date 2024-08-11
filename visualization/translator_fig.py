@@ -145,6 +145,7 @@ def show_three(df, figsize=(15, 8), base_spacing=3, ranking=True, ylabel='Rankin
     # Decreased spacing for boxplots within the same row
     spacing_within_row = 0.5
     base_spacing = base_spacing
+    box_width = 0.3
 
     # Colors for the boxplots
     colors = ['#3CB371','#6CA6CD', '#9F79EE']
@@ -152,10 +153,11 @@ def show_three(df, figsize=(15, 8), base_spacing=3, ranking=True, ylabel='Rankin
     # Iterate through each row to create boxplots
     row_count = 0
     for idx, row in df.iterrows():
-        positions = [row_count * base_spacing + i * spacing_within_row for i in range(3)]  # positions for the boxplots
+        positions = [row_count * base_spacing + i * spacing_within_row  for i in range(3)]  # positions for the boxplots
         box_data = [row[col] for col in df.columns]
+ 
         row_count += 1
-        
+
         # Create boxplots with colors
         bplots = ax.boxplot(box_data, positions=positions, widths=0.5, patch_artist=True)
         
@@ -169,7 +171,8 @@ def show_three(df, figsize=(15, 8), base_spacing=3, ranking=True, ylabel='Rankin
     ax.set_xticklabels(df.index)
     ax.set_xlabel('Method Pair')
     if ranking:
-        ax.set_ylim([0, 21])
+        ax.set_ylim([0, 22])
+        ax.set_yticks(np.arange(0, 22, 2))
     ax.set_ylabel(ylabel)
     ax.set_title(title)
     # ax.grid(True)
@@ -186,6 +189,10 @@ def show_three(df, figsize=(15, 8), base_spacing=3, ranking=True, ylabel='Rankin
     # plt.rcParams.update(plt_default_params)
 
     plt.show()
+
+
+
+
 
 
 def represent_values(df, baseline):

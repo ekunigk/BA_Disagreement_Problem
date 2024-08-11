@@ -85,7 +85,7 @@ def get_pairwise_explanations2(data_collector, model_number=1):
 
 def get_pairwise_explanations(explanations_all, non_zero_explanations):
     pairs = {}
-    method_list = ['ig', 'ks', 'li', 'sg', 'vg']
+    method_list = ['IG', 'KS', 'LI', 'SG', 'VG']
 
     # print(explanations_all[0:10])
 
@@ -107,7 +107,7 @@ def separate_into_pairs(explanations_all, non_zero_explanations, method1, method
 
     dataset = torch.ones((1, len(explanations_all[0])))
 
-    if method1 == 'li' or method2 == 'li':
+    if method1 == 'LI' or method2 == 'LI':
         explanations = non_zero_explanations
         ex_length = non_zero_length
     else:
@@ -117,15 +117,15 @@ def separate_into_pairs(explanations_all, non_zero_explanations, method1, method
     for i in range(2):
         method = [method1, method2][i]
 
-        if method == 'ig':
+        if method == 'IG':
             dataset = torch.vstack((dataset, explanations[0:ex_length]))
-        elif method == 'ks':
+        elif method == 'KS':
             dataset = torch.vstack((dataset, explanations[ex_length:ex_length*2]))
-        elif method == 'li':
+        elif method == 'LI':
             dataset = torch.vstack((dataset, explanations[ex_length*2:ex_length*3]))
-        elif method == 'sg':
+        elif method == 'SG':
             dataset = torch.vstack((dataset, explanations[ex_length*3:ex_length*4]))
-        elif method == 'vg':
+        elif method == 'VG':
             dataset = torch.vstack((dataset, explanations[ex_length*4:ex_length*5]))
 
     dataset = dataset[1:]

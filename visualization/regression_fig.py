@@ -44,6 +44,10 @@ def visualize_scores_temp(scores):
     score_array = np.array(list(scores.values())).T
     plt.boxplot(score_array)
     plt.xticks(range(1, len(scores)+1), scores.keys())
-    plt.title('LR Classification Accuracy')
+    # plt.title('LR Classification Accuracy')
+    plt.xlabel('Method Pairs')
+    plt.ylabel('Classification Accuracy')
+    plt.title('Classification Accuracy for Different Method Pairs')
+    plt.grid(True)
     plt.show()
 
