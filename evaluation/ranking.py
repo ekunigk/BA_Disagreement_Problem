@@ -67,60 +67,29 @@ def rank_entries(df, baseline=0):
     return rank_df
 
 
-def separate_concepts_df(merged_df):
-
-    grad_pairs = ['IG_VG', 'IG_SG', 'SG_VG', 'SG_IG', 'VG_IG', 'VG_SG']
-    perturb_pairs = ['KS_LI', 'LI_KS']
-    mixed_pairs = ['IG_KS', 'IG_LI', 'KS_IG', 'KS_VG', 'LI_IG', 'LI_SG', 'SG_LI', 'SG_KS', 'VG_KS', 'VG_LI']
-
-    grad_df = pd.DataFrame(index=grad_pairs, columns=merged_df.columns)
-    perturb_df = pd.DataFrame(index=perturb_pairs, columns=merged_df.columns)
-    mixed_df = pd.DataFrame(index=mixed_pairs, columns=merged_df.columns)
-
-    for idx in merged_df.index:
-        if idx in grad_pairs:
-            grad_df[idx] = merged_df.loc[idx]
-        elif idx in perturb_pairs:
-            perturb_df[idx] = merged_df.loc[idx]
-        else:
-            mixed_df[idx] = merged_df.loc[idx]
-
-    # grad_df = merged_df.loc(grad_pairs)
-    # perturb_df = merged_df.loc(perturb_pairs)
-    # mixed_df = merged_df.drop(grad_pairs + perturb_pairs, axis=1)
-
-    return grad_df, perturb_df, mixed_df
-
-
-
 def separate_concepts(merged_dict):
-    grad_pairs = ['IG_VG', 'IG_SG', 'SG_VG', 'SG_IG', 'VG_IG', 'VG_SG']
-    perturb_pairs = ['KS_LI', 'LI_KS']
+    grad_pairs = ['IG_VG', 'IG_SG', 'SG_VG', 'SG_IG', 'VG_IG', 'VG_SG', 'KS_LI', 'LI_KS']
     grad_dict = {}
-    perturb_dict = {}
+
     mixed_dict = {}
 
     for key in merged_dict.keys():
         if key in grad_pairs:
             grad_dict[key] = merged_dict[key]
-        elif key in perturb_pairs:
-            perturb_dict[key] = merged_dict[key]
         else:
             mixed_dict[key] = merged_dict[key]
 
-    return grad_dict, perturb_dict, mixed_dict
+    return grad_dict, mixed_dict
 
 def separate_kfold(merged_dict):
-    grad_dict = {}
-    perturb_dict = {}
+    same_dict = {}
     mixed_dict = {}
     for key in merged_dict.keys():
-        grad, perturb, mixed = separate_concepts(merged_dict[key])
-        grad_dict[key] = grad
-        perturb_dict[key] = perturb
+        same, mixed = separate_concepts(merged_dict[key])
+        same_dict[key] = same
         mixed_dict[key] = mixed
 
-    return grad_dict, perturb_dict, mixed_dict
+    return same_dict, mixed_dict
 
 def sum_mses(mse_dict):
     sum_dict = {}
