@@ -5,7 +5,7 @@ from visualization.translator_fig import show_three, represent_values
 import pandas as pd
 
 
-def show_mse_and_baseline(dataset='breastw', architecture='ae5'):
+def show_mse_and_baseline(dataset='breastw', architecture='ae5',fig_size=(15,8), save_plt=False, path='mse.pdf'):
 
     if architecture == 'lr':
         no_mask_dict, b_dict = prepare_lr(dataset, mode='mse')
@@ -14,10 +14,10 @@ def show_mse_and_baseline(dataset='breastw', architecture='ae5'):
 
     mse_df = pd.DataFrame(no_mask_dict)
 
-    represent_values(mse_df, b_dict)
+    represent_values(mse_df, b_dict, figsize=fig_size, save_plt=save_plt, path=path)
 
 
-def show_rankings_mse(dataset='breastw', architecture='ae5'):
+def show_rankings_mse(dataset='breastw', architecture='ae5', fig_size1=(8,8), fig_size2=(12,8), save_plt=False, path1='ranking.pdf', path2='ranking2.pdf'):
 
     if architecture == 'lr':
         no_mask_dict, b_dict = prepare_lr(dataset, mode='mse')
@@ -34,11 +34,11 @@ def show_rankings_mse(dataset='breastw', architecture='ae5'):
     df_same = pd.DataFrame(same)
     df_mixed = pd.DataFrame(mixed)
 
-    show_three(df_same, (8,8))
-    show_three(df_mixed, (12, 8))
+    show_three(df_same, fig_size1, save_plt=save_plt, path=path1)
+    show_three(df_mixed, fig_size2, save_plt=save_plt, path=path2)
 
 
-def show_mse_with_mask(dataset='breastw', model_number=1, architecture='ae5'):
+def show_mse_with_mask(dataset='breastw', model_number=1, architecture='ae5', fig_size=(15,8), save_plt=False, path='mse.pdf'):
 
     if architecture == 'lr':
         mse_dict, b_dict = prepare_lr(dataset, mode='mask', model_number=model_number)
@@ -54,7 +54,7 @@ def show_mse_with_mask(dataset='breastw', model_number=1, architecture='ae5'):
     # normalized_df = normalize_df(df, b_dict)
 
     # show_three(normalized_df, (15,8), 3, ranking=False, ylabel='MSE', title='MSE with different masks')
-    represent_values(df, b_dict)
+    represent_values(df, b_dict, figsize=fig_size, save_plt=save_plt, path=path)
 
 
 def generate_nomask_dicts(dataset='breastw', architecture='ae5'):

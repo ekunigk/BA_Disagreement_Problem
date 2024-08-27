@@ -1,4 +1,6 @@
 from sklearn.preprocessing import StandardScaler
+import matplotlib as mpl
+mpl.use('pdf')
 
 import matplotlib.pyplot as plt
 import seaborn as sns
@@ -48,12 +50,18 @@ def visualize_umap2(dataset, embedding, scale=False):
         hue=label,
         palette='deep'
     )
-    sca.legend(loc='upper right', labels=['ig', 'ks', 'li', 'sg', 'vg'])
+    sca.legend(loc='upper right', labels=['IG', 'KS', 'LI', 'SG', 'VG'])
     sca.set()
     plt.show()
     return embedding
 
-def visualize_umap(embedding, method_length, non_zero_method_length):
+def visualize_umap(embedding, method_length, non_zero_method_length, figsize=(5,5), save_plt=False, path='umap.pdf'):
+
+    plt.rc('text', usetex=True)
+    plt.rc('font', family='serif')
+    plt.figure(figsize=figsize)
+    
+    plt.rc('font', size=10.95)   
 
     length = int(len(embedding) / 5)
 
@@ -68,11 +76,25 @@ def visualize_umap(embedding, method_length, non_zero_method_length):
     # ks = plt.scatter(embedding[method_length:(2*method_length), 0], embedding[method_length:(2*method_length), 1], color=colors[1], linewidths=0.8, edgecolors='w', alpha=1)
 
     plt.legend((ig, ks, li, sg, vg),
-               ('ig', 'ks', 'li', 'sg', 'vg'),
+               ('IG', 'KS', 'LI', 'SG', 'VG'),
                scatterpoints=1,
-               loc='upper right',
-               ncol=1,
-               fontsize=8)
+               loc='upper center',
+               fontsize=10.95,
+               bbox_to_anchor=(0.5, 1.18), ncol=5,  handletextpad=0.1, columnspacing=0.05)
     
-    plt.title('UMAP projection of the dataset')    
+    plt.tick_params(
+        which='both',
+        left=False,
+        right=False,
+        bottom=False,
+        top=False,
+        labelbottom=False,
+        labelleft=False)
+    
+    # plt.title('UMAP projection of the dataset')    
     plt.show()
+    plt.tight_layout()
+
+    if save_plt:
+        path_pdf = "figures/umap/" + path
+        plt.savefig(path_pdf, format='pdf', dpi=300)

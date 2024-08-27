@@ -1,9 +1,9 @@
 import seaborn as sns
 import numpy as np
-from matplotlib.lines import Line2D
-import matplotlib.pyplot as plt
 import matplotlib as mpl
-# mpl.rcParams.update(mpl.rcParamsDefault)
+mpl.use('pdf')
+import matplotlib.pyplot as plt
+from matplotlib.lines import Line2D
 
 def visualize_translation_scores(scores_1):
     x = scores_1.keys()
@@ -54,7 +54,7 @@ def analyze_residuals(residuals, dim=0):
     plt.show()
 
 
-def show_rankings(ranking_dict, label, title='Ranking of MSE of linear translation', figsize=(18, 6),):
+def show_rankings(ranking_dict, label, title='Ranking of MSE of linear translation', figsize=(18, 6)):
     x = ranking_dict.keys()
 
     plt.figure(figsize=figsize)
@@ -132,25 +132,20 @@ def show_three_bp(df):
     #     ])
     # }
 
-def show_three(df, figsize=(15, 8), base_spacing=3, ranking=True, ylabel='Ranking among Methods', title='Ranking of Method Pairs based on Translation MSE'):
+def show_three(df, figsize=(15, 8), base_spacing=2, ranking=True, ylabel=True, save_plt=False, path='box.pdf'):
 
-    # Configure Matplotlib to use LaTeX
-    
+    plt.rc('text', usetex=True)
+    plt.rc('font', family='serif')
+    plt.rc('font', size=10.95)   
 
-    # plt.rcParams.update(pgf_with_latex)
-
-    # Plotting
     fig, ax = plt.subplots(figsize=figsize)
 
-    # Decreased spacing for boxplots within the same row
     spacing_within_row = 0.5
     base_spacing = base_spacing
     box_width = 0.3
 
-    # Colors for the boxplots
     colors = ['#3CB371','#6CA6CD', '#9F79EE']
 
-    # Iterate through each row to create boxplots
     row_count = 0
     for idx, row in df.iterrows():
         positions = [row_count * base_spacing + i * spacing_within_row  for i in range(3)]  # positions for the boxplots
@@ -158,48 +153,50 @@ def show_three(df, figsize=(15, 8), base_spacing=3, ranking=True, ylabel='Rankin
  
         row_count += 1
 
-        # Create boxplots with colors
         bplots = ax.boxplot(box_data, positions=positions, widths=0.5, patch_artist=True)
         
         for patch, color in zip(bplots['boxes'], colors):
             patch.set_facecolor(color)
 
-        # ax.plot(positions, [baseline] * len(positions), 'k--', linewidth=1)
-
-    # Customizing the plot
     ax.set_xticks([i * base_spacing + spacing_within_row for i in range(len(df))])
     ax.set_xticklabels(df.index)
     ax.set_xlabel('Method Pair')
     if ranking:
         ax.set_ylim([0, 22])
-        ax.set_yticks(np.arange(0, 22, 2))
-    ax.set_ylabel(ylabel)
-    ax.set_title(title)
-    # ax.grid(True)
+        ax.set_yticks(np.arange(0, 20, 2))
+    ax.set_ylabel('Rank')
+    plt.xticks(rotation=45)
 
-    # Adding legend manually
     for color, col in zip(colors, df.columns):
         ax.plot([], [], label=col, color=color)
-    ax.legend()
 
-    # plt.switch_backend('pgf')
-    # plt.rcParams.update(pgf_with_latex)
-    # plt.savefig("boxplot_h1.png", format="png")  
-    # plt.switch_backend(plt_default_backend)
-    # plt.rcParams.update(plt_default_params)
+    plt.tick_params(
+        axis='y',         
+        which='both',
+        left=False,
+        right=False,
+        labelleft=False) 
+
+    plt.legend(('M1', 'M2', 'M3'), loc='upper center', bbox_to_anchor=(0.5, 1.2), ncol=3,  handletextpad=0.2, columnspacing=0.5)
+    plt.tight_layout()
 
     plt.show()
 
+    if save_plt:
+        path_pdf = "figures/translation/ranks/" + path
+        plt.savefig(path_pdf, format='pdf', dpi=300)
 
 
 
 
+def represent_values(df, baseline, figsize=(15, 8), save_plt=False, path='scatter.pdf'):
 
-def represent_values(df, baseline):
+    plt.rc('text', usetex=True)
+    plt.rc('font', family='serif')
+    plt.rc('font', size=10.95)   
 
-    fig, ax = plt.subplots(figsize=(15, 8))
+    fig, ax = plt.subplots(figsize=figsize)
 
-    # Colors for the scatter points
     colors = ['#3CB371','#6CA6CD', '#9F79EE']
 
     offsets = [-0.2, 0, 0.2]
@@ -210,38 +207,43 @@ def represent_values(df, baseline):
     b3 = baseline[b_keys[2]]
 
     row_count = 0
-    # Iterate through each row to create scatter plots
     for idx, row in df.iterrows():
-        # Scatter the points for each column
         for i, col in enumerate(df.columns):
             ax.scatter([row_count + offsets[i]] * 10, row[col], color=colors[i], label=col if row_count == 0 else "", alpha=0.7)
         
-        # ax.hlines(y=baseline[idx], xmin=row_count + offsets[0], xmax=row_count + offsets[2], colors='black', linestyles='--', linewidth=2)
         ax.hlines(y=b1[idx], xmin=row_count -0.3, xmax=row_count -0.1, color='black')
         ax.hlines(y=b2[idx], xmin=row_count -0.1, xmax=row_count +0.1, color='black')
         ax.hlines(y=b3[idx], xmin=row_count +0.1, xmax=row_count +0.3, color='black')
         row_count += 1
 
-    # Customizing the plot
     ax.set_xticks(range(len(df)))
-    ax.set_xticklabels(df.index)
+    plt.xticks(rotation=45)
+    ax.set_xticklabels(df.index, fontdict={'size': 10.95})
+    plt.margins(x=0, y=0)
     ax.set_xlabel('Method Pair')
-    ax.set_ylabel('Translation MSE')
-    ax.set_title('Translation MSE of Pairs of Attribution Methods')
+    ax.set_ylabel('MSE')
 
-    # Set the y-axis to display a range based on the data
+    # plt.tick_params(
+    #     axis='y',          # changes apply to the x-axis
+    #     which='both',
+    #     left=False,
+    #     right=False,
+    #     labelleft=False) # labels along the bottom edge are
+
+    # ax.legend(loc='upper center', bbox_to_anchor=(1, 1.15),
+    #       ncol=3)
+
     all_values = np.concatenate(df.values.flatten())
-    ax.set_ylim([all_values.min() - 0.02, all_values.max() + 0.05])
 
     baseline_legend = Line2D([0], [0], color='black', linestyle='-', linewidth=1, label='Baseline')
-
-    # Add the legend to the plot
-    ax.legend(handles=ax.get_legend_handles_labels()[0] + [baseline_legend])
-
-    # Save the plot as a vector graphic
-    # plt.savefig('scatter_plot.svg', format='svg')  # You can also use 'pdf' or other vector formats
+    plt.legend(('No Mask', '1/3 Masked', '2/3 Masked', 'Baseline'), loc='upper center', bbox_to_anchor=(0.5, 1.2), ncol=4,  handletextpad=0.2, columnspacing=0.5)
+    plt.tight_layout(rect=[0, 0, 1, 0.95])
 
     plt.show()
+
+    if save_plt:
+        path_pdf = "figures/translation/" + path
+        plt.savefig(path_pdf, format='pdf', dpi=300)
 
 
 def plot_boxplots(df, figsize=(15, 8)):

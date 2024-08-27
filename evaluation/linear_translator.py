@@ -6,6 +6,8 @@ import numpy as np
 import seaborn as sns
 import matplotlib.pyplot as plt
 
+# linear translation of explanations
+
 
 def translate(explanation1, explanation2, pred=False):
     model = LinearRegression()
@@ -62,6 +64,8 @@ def translate_pairwise(explanation_set, non_zero_explanation_set, pred=True, kfo
     return r2, mse, mean_mse, kfolds, variances
 
 
+# method to conduct translations with 
+
 def translate_kfold(explanation1, explanation2, k=10, random_state=44, pred=True, masked=False, masked_indices=None):
     X = explanation1
     y = explanation2
@@ -96,6 +100,8 @@ def translate_kfold(explanation1, explanation2, k=10, random_state=44, pred=True
     return np.mean(mse_scores), mse_scores, np.mean(scores), variance
 
 
+# mean mse baseline
+
 def compare_to_mean_baseline(explanation2):
     mean = np.mean(explanation2.numpy(), axis=0)
     mean_array = np.zeros(explanation2.shape)
@@ -103,6 +109,8 @@ def compare_to_mean_baseline(explanation2):
     mean_mse = mean_squared_error(explanation2, mean_array)
     return mean_mse
 
+
+# mean mse baseline adaption if parts of the explanations are masked
 
 def compare_to_mean_masked(explanation2, masked_indices):
     expl = explanation2.clone().numpy()
@@ -131,6 +139,8 @@ def create_index_matrix(masked_indices, number_of_features):
     
     return index_matrix
 
+
+# mse calculation when parts of the features are masked so that only non-masked weigh in
 
 def calculate_masked_mse(masked_indices, y_pred, y_true):
     number_of_features = len(y_pred[0])

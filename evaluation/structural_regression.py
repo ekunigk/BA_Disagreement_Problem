@@ -23,6 +23,9 @@ def split_regression_data(two_explanation_set, test_size=0.2):
 def test_on_kfold(model, two_explanation_set, k=10, random_state=44):
     X = two_explanation_set[:, :-1]
     y = two_explanation_set[:, -1]
+    # half = int(len(X)/2)
+
+    # y = torch.hstack((torch.zeros(half), torch.ones(half)))
 
     model = LogisticRegression(random_state=10, max_iter=100)
 
@@ -48,11 +51,13 @@ def test_on_kfold(model, two_explanation_set, k=10, random_state=44):
 
     variance = np.var(scores)
 
+    coefficients = clf.coef_
+
     # print("all scores: ", scores)
 
     # print("mean score: ", np.mean(scores))
 
-    return scores
+    return scores, coefficients
 
 
 def concatenate_data_explanation(data_collector, two_explanation_set, dataset_name):
@@ -141,16 +146,18 @@ def pairwise_kfold(explanations_all, non_zero_explanations, k=10, random_state=4
 
     scores = {}
     variances = {}
+    coefficients = {}
 
     for pair in pairs:
         # print(pair)
         two_explanation_set = pairs[pair]
-        score = test_on_kfold(model, two_explanation_set, k, random_state=random_state)
+        score, coefs = test_on_kfold(model, two_explanation_set, k, random_state=random_state)
         scores[pair] = score
         # variances[pair] = variance
+        coefficients[pair] = coefs
 
 
-    return scores
+    return scores, coefficients
 
 
 def multiple_pairwise_kfold(data_collector, explanation_set, model_number=1, k=10, n=3, random_state=[44, 45, 46]):

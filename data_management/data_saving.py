@@ -1,6 +1,8 @@
 import pickle
 import pandas as pd
 
+# saving and loading results from time-consuming computations
+
 def save_dict(dictionary, filename):
     with open(filename, 'wb') as handle:
         pickle.dump(dictionary, handle, protocol=pickle.HIGHEST_PROTOCOL)
@@ -14,9 +16,3 @@ def load_dict(filename):
         b = pickle.load(handle)
         
     return b
-
-
-def load_into_df(filename):
-    loaded_dict = load_dict(filename)
-    
-
