@@ -4,6 +4,9 @@ from evaluation3 import evaluate_models
 from visualization.translator_fig import show_three, represent_values
 import pandas as pd
 
+# translation evaluation methods
+
+# part 1 of translation analysis: mse values and baseline
 
 def show_mse_and_baseline(dataset='breastw', architecture='ae5',fig_size=(15,8), save_plt=False, path='mse.pdf'):
 
@@ -16,6 +19,7 @@ def show_mse_and_baseline(dataset='breastw', architecture='ae5',fig_size=(15,8),
 
     represent_values(mse_df, b_dict, figsize=fig_size, save_plt=save_plt, path=path)
 
+# part 2 of translation analysis: ranking of mse values
 
 def show_rankings_mse(dataset='breastw', architecture='ae5', fig_size1=(8,8), fig_size2=(12,8), save_plt=False, path1='ranking.pdf', path2='ranking2.pdf'):
 
@@ -37,6 +41,7 @@ def show_rankings_mse(dataset='breastw', architecture='ae5', fig_size1=(8,8), fi
     show_three(df_same, fig_size1, save_plt=save_plt, path=path1)
     show_three(df_mixed, fig_size2, save_plt=save_plt, path=path2)
 
+# part 3 of translation analysis: mse values with masks
 
 def show_mse_with_mask(dataset='breastw', model_number=1, architecture='ae5', fig_size=(15,8), save_plt=False, path='mse.pdf'):
 
@@ -56,6 +61,8 @@ def show_mse_with_mask(dataset='breastw', model_number=1, architecture='ae5', fi
     # show_three(normalized_df, (15,8), 3, ranking=False, ylabel='MSE', title='MSE with different masks')
     represent_values(df, b_dict, figsize=fig_size, save_plt=save_plt, path=path)
 
+
+# methods for data generation from saved pickle files
 
 def generate_nomask_dicts(dataset='breastw', architecture='ae5'):
     if dataset == 'breastw':
@@ -98,7 +105,6 @@ def generate_dicts_per_model(dataset='breastw', model_number=1, architecture='ae
     return kfold, b
 
 
-#dict_keys(['model 1 mse', 'model 1 mse 1_3', 'model 1 mse 2_3', 'model 2 mse', 'model 2 mse 1_3', 'model 2 mse 2_3', 'model 3 mse', 'model 3 mse 1_3', 'model 3 mse 2_3'])
 
 def prepare_lr(dataset='breastw', mode='mse', model_number=1):
     score_dict, kfold_dict = evaluate_models(dataset, False)

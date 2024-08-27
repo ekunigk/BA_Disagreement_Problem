@@ -7,6 +7,10 @@ import seaborn as sns
 import umap
 import torch
 
+# umap projection of the explanations for the preliminary analysis
+
+# umap projection
+
 def project_umap(dataset, non_zero_dataset, n_neighbors=15, min_dist=0.1, scale=False):
     feature_set = dataset[:, :-1]
 
@@ -25,35 +29,7 @@ def project_umap(dataset, non_zero_dataset, n_neighbors=15, min_dist=0.1, scale=
     embedding = reducer.fit_transform(final_feature_set)
     return embedding, method_length, non_zero_method_length
 
-def visualize_umap_nolegend(dataset, embedding, scale=False):
-
-    plt.scatter(
-        embedding[:, 0],
-        embedding[:, 1],
-        c=[sns.color_palette("ch:s=.25,rot=-.25", as_cmap=True)[x] for x in dataset[:, -1].numpy().astype(int)]
-    )
-    plt.gca().set_aspect('equal', 'datalim')
-    plt.title('UMAP projection of the dataset', fontsize=24)
-
-    plt.show()
-    return embedding
-
-
-def visualize_umap2(dataset, embedding, scale=False):
-
-    label = dataset[:, -1].numpy().astype(int)
-
-
-    sca = sns.scatterplot(
-        x=embedding[:, 0],
-        y=embedding[:, 1],
-        hue=label,
-        palette='deep'
-    )
-    sca.legend(loc='upper right', labels=['IG', 'KS', 'LI', 'SG', 'VG'])
-    sca.set()
-    plt.show()
-    return embedding
+# visualize umap projection
 
 def visualize_umap(embedding, method_length, non_zero_method_length, figsize=(5,5), save_plt=False, path='umap.pdf'):
 

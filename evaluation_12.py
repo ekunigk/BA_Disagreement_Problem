@@ -8,7 +8,9 @@ from evaluation.structural_regression import pairwise_kfold
 from evaluation.umap import visualize_umap, project_umap
 
 from visualization.preliminary_fig import visualize_fa
-from visualization.regression_fig import visualize_scores, visualize_scores_temp
+from visualization.regression_fig import visualize_scores_temp
+
+# collective method for parts of the preliminary analysis
 
 def analyze_explanations(explanation_set, n_fa, k_fa, model_number=1, n_neighbors=15, min_dist=0.1, scaled=False, masked=False, k_mask=3, mask=0):
 

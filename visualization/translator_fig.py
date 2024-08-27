@@ -5,6 +5,8 @@ mpl.use('pdf')
 import matplotlib.pyplot as plt
 from matplotlib.lines import Line2D
 
+# visualization of translation scores in various versions
+
 def visualize_translation_scores(scores_1):
     x = scores_1.keys()
     y = scores_1.values()
@@ -46,6 +48,7 @@ def visualize_multiple_scores(score_dict, labels, title, figsize=(18,6)):
     plt.legend(labels)
     plt.show()
 
+# visualization of residuals
 
 def analyze_residuals(residuals, dim=0):
     residual = residuals[dim]
@@ -71,66 +74,7 @@ def show_rankings(ranking_dict, label, title='Ranking of MSE of linear translati
     plt.show()
 
 
-def show_rankings_bp(ranking_dict, title='Ranking of MSE of translation', figsize=(18, 6)):
-    mse_array = np.array(list(ranking_dict.values()))
-    mse_array = mse_array.T
-    plt.boxplot(mse_array)
-    plt.ylim(0, 22)
-    plt.yticks(np.arange(0, 22, 2))
-    plt.xticks(np.arange(1, len(ranking_dict.keys())+1), ranking_dict.keys())
-    plt.title(title)
-    plt.show()
-
-
-def show_three_bp(df):
-    fig, ax = plt.subplots(figsize=(15, 8))
-
-    # Iterate through each row to create boxplots
-    count = 0
-    for idx, row in df.iterrows():
-        positions = [count * 3 + i for i in range(3)]  # positions for the boxplots
-        box_data = [row[col] for col in df.columns]
-        ax.boxplot(box_data, positions=positions, widths=0.6)
-        count +=1
-
-    # Customizing the plot
-    ax.set_xticks([i * 3 + 1 for i in range(len(df))])
-    ax.set_xticklabels(df.index)
-    ax.set_xlabel('Row Index')
-    ax.set_ylabel('Value Ranges')
-    ax.set_title('Boxplots of MSE Values per Row')
-    ax.grid(True)
-
-    # Adding legend manually
-    for i, col in enumerate(df.columns):
-        ax.plot([], [], label=col, color='C'+str(i))
-    ax.legend()
-
-    plt.show()
-
-
-# plt_default_backend = plt.get_backend()
-# plt_default_params = plt.rcParams
-
-# pgf_with_latex = {
-    #     "pgf.texsystem": "lualatex",
-    #     "text.usetex": True,
-    #     "font.family": "serif",
-    #     "font.serif": [],
-    #     "font.sans-serif": [],
-    #     "font.monospace": [],
-    #     "legend.fontsize": 10.95,
-    #     "axes.labelsize": 10.95,
-    #     "font.size": 10.95,
-    #     "legend.fontsize": 10.95,
-    #     "xtick.labelsize": 10.95,
-    #     "ytick.labelsize": 10.95,
-    #     "pgf.preamble": "\n".join([
-    #         r"\usepackage[utf8]{inputenc}",
-    #         r"\usepackage[T1]{fontenc}",
-    #         r"\usepackage{cmbright}",
-    #     ])
-    # }
+# final visualization of rankings in boxplots
 
 def show_three(df, figsize=(15, 8), base_spacing=2, ranking=True, ylabel=True, save_plt=False, path='box.pdf'):
 
@@ -187,7 +131,7 @@ def show_three(df, figsize=(15, 8), base_spacing=2, ranking=True, ylabel=True, s
         plt.savefig(path_pdf, format='pdf', dpi=300)
 
 
-
+# final visualization of mses in scatter plot for first translations and masked version
 
 def represent_values(df, baseline, figsize=(15, 8), save_plt=False, path='scatter.pdf'):
 
@@ -244,48 +188,3 @@ def represent_values(df, baseline, figsize=(15, 8), save_plt=False, path='scatte
     if save_plt:
         path_pdf = "figures/translation/" + path
         plt.savefig(path_pdf, format='pdf', dpi=300)
-
-
-def plot_boxplots(df, figsize=(15, 8)):
-    fig, ax = plt.subplots(figsize=figsize)
-
-    # Positions for the boxplots
-    positions = np.arange(len(df))
-
-    # Width of each box, set to a fixed small value
-    box_width = 0.2
-
-    # Plotting the boxplots
-    row_count = 0
-    for i, col in enumerate(df.columns):
-        box = ax.boxplot(
-            df[col].values.tolist(),
-            positions=positions + row_count * box_width - box_width,
-            widths=box_width,
-            patch_artist=True,
-            boxprops=dict(facecolor=f'C{row_count}', color='black'),
-            medianprops=dict(color='black'),
-            whiskerprops=dict(color='black'),
-            capprops=dict(color='black'),
-            flierprops=dict(markerfacecolor=f'C{row_count}', markeredgecolor='black', marker='o')
-        )
-        row_count += 1
-
-    # Customizing the plot
-    ax.set_xticks(positions)
-    ax.set_xticklabels(df.index)
-    ax.set_xlabel('Row Index')
-    ax.set_ylabel('Values')
-    ax.set_title('Boxplots of Values')
-
-    # Set the y-axis to show the full range from 1 to 20
-    ax.set_ylim([1, 20])
-
-    # Adding legend manually
-    handles = [plt.Line2D([0], [0], color=f'C{i}', lw=2, label=col) for i, col in enumerate(df.columns)]
-    ax.legend(handles=handles)
-
-    # Save the plot as a vector graphic
-    # plt.savefig('boxplot_with_adjustable_size.svg', format='svg')  # You can also use 'pdf' or other vector formats
-
-    plt.show()

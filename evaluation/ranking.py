@@ -2,6 +2,9 @@ import numpy as np
 import torch
 import pandas as pd
 
+# methods to create rankings throughout different stages 
+
+# set of methods when single mse is observed, not kfold
 
 def create_rankings(dict_scores):
     scores_sorted = {k : v for k, v in sorted(dict_scores.items(), key=lambda item: item[1]) }
@@ -39,13 +42,14 @@ def create_rankings_kfold(dict_scores):
 
 
 def normalize_df(df, baseline):
-    # print(df.head())
     for col in df.columns:
         for idx in df.index:
             df[col][idx] = df[col][idx] / baseline[col][idx]
 
     return df
 
+
+# method used in final evaluation to rank the different method pairs
 
 def rank_entries(df, baseline=0):
 
@@ -66,6 +70,7 @@ def rank_entries(df, baseline=0):
     
     return rank_df
 
+# separating shared concepts from mixed concepts
 
 def separate_concepts(merged_dict):
     grad_pairs = ['IG_VG', 'IG_SG', 'SG_VG', 'SG_IG', 'VG_IG', 'VG_SG', 'KS_LI', 'LI_KS']

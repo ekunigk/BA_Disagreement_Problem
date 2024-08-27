@@ -123,6 +123,8 @@ def compare_to_mean_masked(explanation2, masked_indices):
     return means_mse
  
 
+ # test to see how residuals are distributed
+
 def analyze_residuals(y_test, y_pred):
     residuals = y_test - y_pred
     sns.histplot(residuals[:, 0])

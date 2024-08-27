@@ -4,29 +4,15 @@ mpl.use('pdf')
 import matplotlib.pyplot as plt
 import numpy as np
 
-def visualize_scores(scores):
-    method_list = list(scores.keys())
-    score_list = list(scores.values())
-    sns.scatterplot(x=method_list, y=score_list)
-    plt.title('Logistic Regression Accuracy')
-    plt.xlabel('Method Pairs')
-    plt.ylabel('Accuracy')
-    plt.show()
-
-
-def visualize_scores_all(scores_all):
-    sns.boxplot(scores_all)
-    plt.show()
-
+# logistic regression classification visualization
 
 def visualize_attempt(scores_all, legend_names=('one', 'two', 'three'), figsize=(5,3), save_plt=False, path='lr.pdf'):
 
-    # Enable LaTeX rendering
+
     plt.rc('text', usetex=True)
     plt.rc('font', family='serif')
     plt.figure(figsize=figsize)
-    
-    # Set overall font size
+
     plt.rc('font', size=10.95)   
 
     color_list = ['blue', 'purple', 'red', 'orange', 'yellow']
@@ -65,10 +51,8 @@ def visualize_scores_temp(scores, figsize=(5,3), save_plt=False, path='lr.pdf'):
     plt.boxplot(score_array)
     plt.xticks(range(1, len(scores)+1), ['IG-KS', 'IG-LI', 'IG-SG', 'IG-VG', 'KS-LI', 'KS-SG', 'KS-VG', 'LI-SG', 'LI-VG', 'SG-VG'], rotation=45)
 
-    # plt.xlabel('Method Pairs')
     plt.ylabel('Accuracy')
-    # plt.title('Classification Accuracy for Different Method Pairs')
-    # plt.grid(True)
+
     plt.show()
     plt.tight_layout()
 

@@ -1,6 +1,8 @@
 import torch
 import numpy as np
 
+# feature agreement calculation
+
 def feature_agreement(ex_1, ex_2, k):
     indices_1 = set(top_features(ex_1, k).numpy())
     indices_2 = set(top_features(ex_2, k).numpy())
@@ -82,6 +84,7 @@ def fa_average_pairwise(dc, k):
   
     return fa_matrix
 
+# evaluation of how feature agreement changes with the number of features considered
 
 def fa_difference(explanation_set, keys, n, start=0, stop=4, steps=1, random_comparison=False):
     fa_diff = np.ones((1, 10))
@@ -101,11 +104,5 @@ def fa_difference(explanation_set, keys, n, start=0, stop=4, steps=1, random_com
         fa_diff = np.hstack((fa_diff, random_results.reshape(-1, 1)))
 
     return fa_diff[1:], k_list
-
-
-# def fa_model_comparison(explanation_set, k, model_amount=3):
-#     explanation_length = int(len(explanation_set)/model_amount)
-#     fa_matrix = np.zeros((model_amount, model_amount))
-
         
 

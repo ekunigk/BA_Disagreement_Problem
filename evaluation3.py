@@ -4,9 +4,13 @@ from evaluation.autoencoder import Autoencoder
 from evaluation.autoencoder_training import translate_with_autoencoder
 from visualization.translator_fig import visualize_multiple_scores, show_rankings, show_rankings_bp
 from evaluation.ranking import merge_rankings, create_rankings, separate_concepts, merge_two_dicts
-from data_management.data_saving import load_dict, save_dict
+from data_management.data_saving import load_dict
 
 import numpy as np
+
+# collective methods to compare different models and methods
+
+# evaluate both datasets against each other in linear regression
 
 def evaluate_two_datasets(model_number1=1, model_number2=1, eval=True):
 
@@ -35,7 +39,7 @@ def evaluate_two_datasets(model_number1=1, model_number2=1, eval=True):
 
     return score_dict
 
-
+# evaluate all models against each other in linear regression
 
 def evaluate_models(explanation_set='breastw', eval=True):
     dc1 = DataCollector(explanation_set , model_number=1)
@@ -82,6 +86,7 @@ def evaluate_models(explanation_set='breastw', eval=True):
 
     return score_dict, kfold_dict
 
+# evaluate different masks against each other in autoencoder
 
 def evaluate_autoencoder(explanation_set='breastw', model_number=1, layers_encode=[9, 16, 5], layers_decode=[5, 16, 9], num_epochs=10, lr=0.001, batch_size=32, eval=True):
     if explanation_set=='breastw':
@@ -114,7 +119,8 @@ def evaluate_autoencoder(explanation_set='breastw', model_number=1, layers_encod
         evaluate_translations(score_dict, labels, title)
 
     return score_dict, kfold_dict
-    
+
+# present multiple of the evaluations in one method    
 
 def evaluate_translations(score_dict, labels, title):
     visualize_multiple_scores(score_dict, labels, title)
@@ -131,7 +137,7 @@ def evaluate_translations(score_dict, labels, title):
     print(np.mean(list(same_dict.values())))
     print(np.mean(list(mixed_dict.values())))
 
-
+# evaluate linear regression and linear regression against each other, overridden by hypothesis plots
 
 def evaluate_ae_lr_models(explanation_set='breastw', masking=0, show=True):
 
