@@ -2,7 +2,7 @@ from data_management.data_collector import DataCollector
 from evaluation.linear_translator import translate_pairwise, calculate_percentage_of_baseline
 from evaluation.autoencoder import Autoencoder
 from evaluation.autoencoder_training import translate_with_autoencoder
-from visualization.translator_fig import visualize_multiple_scores, show_rankings, show_rankings_bp
+from visualization.translator_fig import visualize_multiple_scores, show_rankings
 from evaluation.ranking import merge_rankings, create_rankings, separate_concepts, merge_two_dicts
 from data_management.data_saving import load_dict
 
@@ -149,8 +149,8 @@ def evaluate_translations(score_dict, labels, title):
     show_rankings(same_dict, labels, 'Same concept methods')
     show_rankings(mixed_dict, labels, 'Mixed methods')
 
-    show_rankings_bp(same_dict)
-    show_rankings_bp(mixed_dict)
+    show_rankings(same_dict)
+    show_rankings(mixed_dict)
 
     print(np.mean(list(same_dict.values())))
     print(np.mean(list(mixed_dict.values())))
