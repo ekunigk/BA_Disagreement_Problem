@@ -1,7 +1,9 @@
 import pickle
 import pandas as pd
 
-# saving and loading results from time-consuming computations
+"""
+saving and loading results from time-consuming computations
+"""
 
 def save_dict(dictionary, filename):
     with open(filename, 'wb') as handle:

@@ -6,8 +6,9 @@ import numpy as np
 import seaborn as sns
 import matplotlib.pyplot as plt
 
-# linear translation of explanations
-
+"""
+linear translation of explanations
+"""
 
 def translate(explanation1, explanation2, pred=False):
     model = LinearRegression()
@@ -64,9 +65,12 @@ def translate_pairwise(explanation_set, non_zero_explanation_set, pred=True, kfo
     return r2, mse, mean_mse, kfolds, variances
 
 
-# method to conduct translations with 
-
 def translate_kfold(explanation1, explanation2, k=10, random_state=44, pred=True, masked=False, masked_indices=None):
+
+    """
+    method to conduct 10 evaluations of linear regression translation with
+    """
+
     X = explanation1
     y = explanation2
     model = LinearRegression()
@@ -100,7 +104,6 @@ def translate_kfold(explanation1, explanation2, k=10, random_state=44, pred=True
     return np.mean(mse_scores), mse_scores, np.mean(scores), variance
 
 
-# mean mse baseline
 
 def compare_to_mean_baseline(explanation2):
     mean = np.mean(explanation2.numpy(), axis=0)
@@ -110,9 +113,12 @@ def compare_to_mean_baseline(explanation2):
     return mean_mse
 
 
-# mean mse baseline adaption if parts of the explanations are masked
-
 def compare_to_mean_masked(explanation2, masked_indices):
+
+    """
+    mean mse baseline adaption if parts of the explanations are masked
+    """
+
     expl = explanation2.clone().numpy()
     expl[expl == 0] = np.nan
     mean = np.nanmean(expl, axis=0)
@@ -123,7 +129,6 @@ def compare_to_mean_masked(explanation2, masked_indices):
     return means_mse
  
 
- # test to see how residuals are distributed
 
 def analyze_residuals(y_test, y_pred):
     residuals = y_test - y_pred
@@ -142,12 +147,14 @@ def create_index_matrix(masked_indices, number_of_features):
     return index_matrix
 
 
-# mse calculation when parts of the features are masked so that only non-masked weigh in
-
 def calculate_masked_mse(masked_indices, y_pred, y_true):
+
+    """ 
+    mse calculation when parts of the features are masked so that only non-masked weigh in
+    """
+
     number_of_features = len(y_pred[0])
     index_matrix = create_index_matrix(masked_indices, number_of_features)
-    # print(y_pred[:10])
 
     masked_y_pred = np.multiply(y_pred, index_matrix)
     # masked_mse = mean_squared_error(y_true, masked_y_pred)

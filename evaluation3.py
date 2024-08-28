@@ -8,11 +8,17 @@ from data_management.data_saving import load_dict
 
 import numpy as np
 
-# collective methods to compare different models and methods
+"""
+This file contains the evaluation methods for the linear regression and autoencoder models
+"""
 
-# evaluate both datasets against each other in linear regression
+
 
 def evaluate_two_datasets(model_number1=1, model_number2=1, eval=True):
+
+    """
+    evaluate both datasets against each other in linear regression
+    """
 
     dc_bw = DataCollector('breastw', model_number=model_number1)
     dc_sb = DataCollector('spambase', model_number=model_number2)
@@ -39,9 +45,13 @@ def evaluate_two_datasets(model_number1=1, model_number2=1, eval=True):
 
     return score_dict
 
-# evaluate all models against each other in linear regression
 
 def evaluate_models(explanation_set='breastw', eval=True):
+
+    """
+    evaluate all models against each other in linear regression
+    """
+
     dc1 = DataCollector(explanation_set , model_number=1)
     dc2 = DataCollector(explanation_set , model_number=2)
     dc3 = DataCollector(explanation_set , model_number=3)
@@ -86,9 +96,13 @@ def evaluate_models(explanation_set='breastw', eval=True):
 
     return score_dict, kfold_dict
 
-# evaluate different masks against each other in autoencoder
 
 def evaluate_autoencoder(explanation_set='breastw', model_number=1, layers_encode=[9, 16, 5], layers_decode=[5, 16, 9], num_epochs=10, lr=0.001, batch_size=32, eval=True):
+    
+    """
+    evaluate autoencoder with different masks against each other
+    """
+    
     if explanation_set=='breastw':
         input_dim = 9
         mask_1_3 = 6
@@ -119,10 +133,14 @@ def evaluate_autoencoder(explanation_set='breastw', model_number=1, layers_encod
         evaluate_translations(score_dict, labels, title)
 
     return score_dict, kfold_dict
-
-# present multiple of the evaluations in one method    
+   
 
 def evaluate_translations(score_dict, labels, title):
+
+    """
+    present multiple of the evaluations in one method
+    """
+
     visualize_multiple_scores(score_dict, labels, title)
 
     ranking_dict = merge_rankings(score_dict)
@@ -137,9 +155,13 @@ def evaluate_translations(score_dict, labels, title):
     print(np.mean(list(same_dict.values())))
     print(np.mean(list(mixed_dict.values())))
 
-# evaluate linear regression and linear regression against each other, overridden by hypothesis plots
+
 
 def evaluate_ae_lr_models(explanation_set='breastw', masking=0, show=True):
+
+    """
+    evaluate linear regression and linear regression against each other, overridden by hypothesis plots
+    """
 
     if explanation_set=='breastw':
         path = 'saves/bw/'

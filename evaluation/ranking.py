@@ -2,9 +2,13 @@ import numpy as np
 import torch
 import pandas as pd
 
-# methods to create rankings throughout different stages 
+"""
+methods to create rankings throughout different stages 
+"""
 
-# set of methods when single mse is observed, not kfold
+"""
+set of methods when single mse is observed, not kfold
+"""
 
 def create_rankings(dict_scores):
     scores_sorted = {k : v for k, v in sorted(dict_scores.items(), key=lambda item: item[1]) }
@@ -49,9 +53,11 @@ def normalize_df(df, baseline):
     return df
 
 
-# method used in final evaluation to rank the different method pairs
-
 def rank_entries(df, baseline=0):
+
+    """
+    method used in final evaluation to normalize and rank the different method pairs
+    """
 
     if baseline != 0:
         df[:] = normalize_df(df, baseline)

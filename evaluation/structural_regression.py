@@ -5,7 +5,9 @@ import pandas as pd
 from sklearn.model_selection import train_test_split, KFold
 from sklearn.linear_model import LogisticRegression
 
-# logistic regression classification to see if methods are separable
+"""
+logistic regression classification to see if methods are separable
+"""
 
 def split_regression_data(two_explanation_set, test_size=0.2):
     X = two_explanation_set[:, :-1]
@@ -56,9 +58,13 @@ def concatenate_data_explanation(data_collector, two_explanation_set, dataset_na
 
     return X_cat, y_cat
 
-# prepare classification data
 
 def get_pairwise_explanations(explanations_all, non_zero_explanations):
+
+    """
+    prepare classification data
+    """
+
     pairs = {}
     method_list = ['IG', 'KS', 'LI', 'SG', 'VG']
 
@@ -104,9 +110,12 @@ def separate_into_pairs(explanations_all, non_zero_explanations, method1, method
     dataset = dataset[1:]
     return dataset 
     
-# method employed in preliminary analysis
 
 def pairwise_kfold(explanations_all, non_zero_explanations, k=10, random_state=44):
+
+    """
+    method employed in preliminary analysis
+    """
     
     model = LogisticRegression(random_state=10, max_iter=100)
     pairs = get_pairwise_explanations(explanations_all, non_zero_explanations)

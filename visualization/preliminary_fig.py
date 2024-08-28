@@ -5,7 +5,9 @@ import matplotlib as mpl
 mpl.use('pdf')
 import matplotlib.pyplot as plt
 
-# feature agreement visualization in heatmap
+"""
+feature agreement visualization in heatmap
+"""
 
 def visualize_fa(fa_matrix, title='Pairwise Feature Agreement', figsize=(10,10), save_pgf=False):
 

@@ -3,7 +3,9 @@ from torch import nn
 from torch import optim
 import numpy as np
 
-# definition of the autoencoder used for translations
+"""
+definition of the autoencoder used for translations
+"""
 
 class Encoder(nn.Module):
 

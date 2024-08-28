@@ -4,7 +4,9 @@ mpl.use('pdf')
 import matplotlib.pyplot as plt
 import numpy as np
 
-# logistic regression classification visualization
+"""
+logistic regression classification visualization
+"""
 
 def visualize_attempt(scores_all, legend_names=('one', 'two', 'three'), figsize=(5,3), save_plt=False, path='lr.pdf'):
 

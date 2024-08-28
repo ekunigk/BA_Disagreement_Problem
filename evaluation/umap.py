@@ -7,9 +7,10 @@ import seaborn as sns
 import umap
 import torch
 
-# umap projection of the explanations for the preliminary analysis
+"""
+umap projection of the explanations for the preliminary analysis
+"""
 
-# umap projection
 
 def project_umap(dataset, non_zero_dataset, n_neighbors=15, min_dist=0.1, scale=False):
     feature_set = dataset[:, :-1]
@@ -29,9 +30,13 @@ def project_umap(dataset, non_zero_dataset, n_neighbors=15, min_dist=0.1, scale=
     embedding = reducer.fit_transform(final_feature_set)
     return embedding, method_length, non_zero_method_length
 
-# visualize umap projection
+
 
 def visualize_umap(embedding, method_length, non_zero_method_length, figsize=(5,5), save_plt=False, path='umap.pdf'):
+
+    """
+    visualize umap projection
+    """
 
     plt.rc('text', usetex=True)
     plt.rc('font', family='serif')

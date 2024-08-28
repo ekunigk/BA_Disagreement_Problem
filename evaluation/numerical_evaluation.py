@@ -5,7 +5,9 @@ mpl.use('pdf')
 import matplotlib.pyplot as plt
 import pandas as pd
 
-# methods to conduct numerical analysis
+"""
+methods to conduct numerical evaluation with
+"""
 
 def count_feature_amount(explanation_set, with_label=True):
     if with_label:
@@ -70,9 +72,13 @@ def calculate_variance2(explanation_set, exclude_zeros=False, all_methods=True):
     return method_variance
 
 
-# collection of all methods at once
 
 def do_dimensional_analysis(dc, value_percentage=0.5, save_plt=False):
+    
+    """
+    complete numerical analysis of the explanations
+    """
+
     number_of_features = len(dc.scaled_explanations[0])-1
     method_size = int(len(dc.scaled_explanations)/5)
     non_zero_method_size = int(len(dc.non_zero_explanations)/5)
@@ -120,7 +126,6 @@ def do_dimensional_analysis(dc, value_percentage=0.5, save_plt=False):
     return dimensional_variance, dimensional_mean, explanation_variance, explanation_mean, explanation_variance_per_method, pd.DataFrame(top_features.T), feature_participation
 
 
-# value distribution histograms
 
 def show_distribution_per_method(explanation, method, color='blue', bin_size=0.2, range_min=-1, range_max=1, figsize=(10,6), save_plt=False):
     flattened_array = explanation.flatten()

@@ -5,7 +5,10 @@ mpl.use('pdf')
 import matplotlib.pyplot as plt
 from matplotlib.lines import Line2D
 
-# visualization of translation scores in various versions
+"""
+visualization of translation scores in various versions
+"""
+
 
 def visualize_translation_scores(scores_1):
     x = scores_1.keys()
@@ -48,7 +51,9 @@ def visualize_multiple_scores(score_dict, labels, title, figsize=(18,6)):
     plt.legend(labels)
     plt.show()
 
-# visualization of residuals
+"""
+visualization of residuals
+"""
 
 def analyze_residuals(residuals, dim=0):
     residual = residuals[dim]
@@ -74,9 +79,13 @@ def show_rankings(ranking_dict, label, title='Ranking of MSE of linear translati
     plt.show()
 
 
-# final visualization of rankings in boxplots
+
 
 def show_three(df, figsize=(15, 8), base_spacing=2, ranking=True, ylabel=True, save_plt=False, path='box.pdf'):
+
+    """ 
+    final visualization of rankings in boxplots
+    """
 
     plt.rc('text', usetex=True)
     plt.rc('font', family='serif')
@@ -131,9 +140,12 @@ def show_three(df, figsize=(15, 8), base_spacing=2, ranking=True, ylabel=True, s
         plt.savefig(path_pdf, format='pdf', dpi=300)
 
 
-# final visualization of mses in scatter plot for first translations and masked version
 
 def represent_values(df, baseline, figsize=(15, 8), save_plt=False, path='scatter.pdf'):
+
+    """ 
+    final visualization of mses in scatter plot for first translations and masked version
+    """
 
     plt.rc('text', usetex=True)
     plt.rc('font', family='serif')

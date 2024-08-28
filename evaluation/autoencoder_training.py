@@ -9,7 +9,9 @@ import matplotlib.pyplot as plt
 
 from evaluation.linear_translator import calculate_masked_mse, compare_to_mean_masked
 
-# training of and translation with autoencoder
+"""
+training of and translation with autoencoder
+"""
 
 
 def train_autoencoder(autoencoder, explanation1, explanation2, num_epochs=10, lr=0.001, batch_size=32):
@@ -85,9 +87,12 @@ def create_batches(explanation1, explanation2, batch_size):
         yield explanation1[i:min(i+batch_size, length)], explanation2[i:min(i+batch_size, length)]
 
 
-# kfold autoencoder translation
         
 def translate_with_autoencoder(autoencoder, explanation_set, non_zero_explanation_set, num_epochs=20, lr=0.001, batch_size=32, masked=False, masked_indices=None, non_zero_masked_indices=None):
+
+    """
+    kfold translation with autoencoder
+    """
 
     number_method = {0: 'IG', 1: 'KS', 2: 'LI', 3: 'SG', 4: 'VG'}
     ex_length = int(len(explanation_set) / 5)
@@ -172,9 +177,13 @@ def translate_with_ae_simple(autoencoder, explanation_set, non_zero_explanation_
     return mse, 0
 
 
-# to test which autoencoder architecture performs best 
 
 def test_ae_architectures(dc, list_of_layers):
+
+    """
+    to test which autoencoder performs best
+    """
+
     mse_dict = {}
 
     for key in list_of_layers:

@@ -6,7 +6,9 @@ from os.path import isfile, join
 
 from sklearn.preprocessing import MaxAbsScaler
 
-# class to handle data collection, preprocessing and scaling, stores all versions of the explanation sets 
+"""
+class to handle data collection, preprocessing and scaling, stores all versions of the explanation sets 
+"""
 
 class DataCollector():
 
